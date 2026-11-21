@@ -11,9 +11,7 @@ const salt = () => randomBytes(16).toString('hex');
 const token = () => randomBytes(32).toString('hex');
 const digest = value => createHash('sha256').update(value).digest('hex');
 const emailValue = value => typeof value==='string' ? value.trim().toLowerCase() : '';
-const cmsValue = value => typeof value==='string' ? value.trim().toUpperCase() : '';
 const validEmail = value => value.length<=254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-const validCms = value => /^[A-Z0-9][A-Z0-9/_.-]{0,63}$/.test(value);
 const validPassword = value => typeof value==='string' && value.length>=12 && value.length<=128;
 const code = () => String(randomInt(1000000)).padStart(6,'0');
 const reply = (body,status=200) => Response.json(body,{status,headers:{'cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -92,7 +90,7 @@ export async function authenticate(req,sql) {
   const raw=readCookie(req,'session');
   if (!raw) return null;
   const key=digest(raw);
-  const [user]=await sql`SELECT u.id,u.name,u.cms,u.email,u.admin,s.expires_at
+  const [user]=await sql`SELECT u.id,u.name,u.institution,u.email,u.admin,s.expires_at
     FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=${key} AND s.expires_at>now()`;
   if (!user) return null;
   if (new Date(user.expires_at).getTime()-Date.now()<60*86400000) {
@@ -130,7 +128,7 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
   }
   return async function handleAuth(action,body,req,sql,clientIp) {
     const ip=clientIp || req.headers.get('x-nf-client-connection-ip') || 'unknown';
-    const cms=cmsValue(body.cms), email=emailValue(body.email);
+    const email=emailValue(body.email);
     const limited=()=>failure('Too many requests. Try again in 15 minutes.',429);
     const expired=()=>failure('Start registration again to get a new verification code.',410);
     const deliveryFailed=()=>failure('We could not send your verification email. Try again later or use Contact us below.',503);
@@ -141,15 +139,16 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
     }
 
     if (action==='register') {
+      const institution=typeof body.institution==='string'?body.institution.trim():'';
       const name=typeof body.name==='string'?body.name.trim():'';
-      if (!name || name.length>120 || !validEmail(email) || !validCms(cms) || !validPassword(body.password))
-        return failure('Enter a name, valid email and CMS number, and a password between 12 and 128 characters.',400);
+      if (!name || name.length>120 || !validEmail(email) || (!institution || institution.length>160) || !validPassword(body.password))
+        return failure('Enter a name, valid email, university or college, and a password between 12 and 128 characters.',400);
       if (!await limits(sql,ip,'register',email,30,5)) return limited();
-      const existing=await sql`SELECT 1 FROM users WHERE cms=${cms} OR email=${email} LIMIT 1`;
-      if (existing.length) return failure('This email or CMS number is already registered. Sign in with your CMS number.',409);
+      const existing=await sql`SELECT 1 FROM users WHERE email=${email} LIMIT 1`;
+      if (existing.length) return failure('This email is already registered. Sign in with your email address.',409);
       const raw=token(), key=digest(raw), otp=code(), hash=await passwordHash(body.password);
-      await sql`INSERT INTO registrations (token_hash,name,cms,email,password_hash,code_hash,code_expires_at,expires_at)
-        VALUES (${key},${name},${cms},${email},${hash},${keyed(key+'/'+otp)},now()+interval '10 minutes',now()+interval '1 hour')`;
+      await sql`INSERT INTO registrations (token_hash,name,institution,email,password_hash,code_hash,code_expires_at,expires_at)
+        VALUES (${key},${name},${institution},${email},${hash},${keyed(key+'/'+otp)},now()+interval '10 minutes',now()+interval '1 hour')`;
       if (!await deliver(email,otp)) {
         await sql`DELETE FROM registrations WHERE token_hash=${key}`;
         return deliveryFailed();
@@ -187,18 +186,18 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
         return failure('Code invalid or expired. Request a new code or start registration again.',400);
       const [user]=await sql`WITH claimed AS (
         DELETE FROM registrations WHERE token_hash=${key} AND email=${email} AND code_hash=${challenge}
-          AND expires_at>now() AND code_expires_at>now() RETURNING name,cms,email,password_hash
-        ) INSERT INTO users(name,cms,email,password_hash) SELECT name,cms,email,password_hash FROM claimed
-        ON CONFLICT DO NOTHING RETURNING id,name,cms,email,admin`;
+          AND expires_at>now() AND code_expires_at>now() RETURNING name,institution,email,password_hash
+        ) INSERT INTO users(name,institution,email,password_hash) SELECT name,institution,email,password_hash FROM claimed
+        ON CONFLICT DO NOTHING RETURNING id,name,institution,email,admin`;
       if (!user) return failure('Registration could not be completed. Sign in if you already have an account.',409);
       return startSession(req,sql,user);
     }
 
     if (action==='login') {
-      const denied=()=>failure('CMS number or password is incorrect.',401);
-      if (!validCms(cms) || !validPassword(body.password)) return denied();
-      if (!await limits(sql,ip,'login',cms,120,12)) return limited();
-      const [user]=await sql`SELECT id,name,cms,email,admin,password_hash FROM users WHERE cms=${cms}`;
+      const denied=()=>failure('Email address or password is incorrect.',401);
+      if (!validEmail(email) || !validPassword(body.password)) return denied();
+      if (!await limits(sql,ip,'login',email,120,12)) return limited();
+      const [user]=await sql`SELECT id,name,institution,email,admin,password_hash FROM users WHERE email=${email}`;
       if (!await matches(body.password,user?.password_hash)) return denied();
       delete user.password_hash;
       return startSession(req,sql,user);

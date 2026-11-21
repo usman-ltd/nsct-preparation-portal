@@ -9,9 +9,9 @@ npm ci
 npm start
 ```
 
-Open **http://localhost:8743**. Register a student with their name, CMS number, email and password. The local server saves the latest verification email in `.local/latest-email.txt`. Enter its six-digit code in the browser. Local development runs PostgreSQL through PGlite and keeps the database in `.local/pg` across restarts. Only the loopback interface serves this development app. The production function sends verification emails through Resend. Email verification is performed at registration. Persistent session cookies are valid for 90 days and renew during continued use. Logout revokes the session in the database.
+Open **http://localhost:8743**. Register a student with their full name, university or college, email and password. The local server saves the latest verification email in `.local/latest-email.txt`. Enter its six-digit code in the browser. Local development runs PostgreSQL through PGlite and keeps the database in `.local/pg` across restarts. Only the loopback interface serves this development app. The production function sends verification emails through Resend. Email verification is performed at registration. Persistent session cookies are valid for 90 days and renew during continued use. Logout revokes the session in the database.
 
-To grant admin access locally, register and verify the account, stop the server, run `npm run local:admin -- YOUR-CMS-NUMBER`, and restart. The Admin page lists verified students, the last time each used the portal, and their paper counts. Open a student's record to review papers, progress and submitted results. Administrators can also remove a question from future papers or restore it. Already-issued papers retain their original questions and grading.
+To grant admin access locally, register and verify the account, stop the server, run `npm run local:admin -- YOUR-EMAIL-ADDRESS`, and restart. The Admin page lists verified students, the last time each used the portal, and their paper counts. Open a student's record to review papers, progress and submitted results. Administrators can also remove a question from future papers or restore it. Already-issued papers retain their original questions and grading.
 
 ## Prepare a production installation
 

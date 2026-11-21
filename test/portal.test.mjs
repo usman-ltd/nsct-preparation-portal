@@ -1,3 +1,4 @@
+import {ensureIdentitySchema} from '../server/identity-schema.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
@@ -30,23 +31,23 @@ test('verified accounts, enforced ownership, persistence, admin controls and log
   const password=randomBytes(24).toString('hex');
   try{
     assert.equal((await one('list')).status,401);
-    const failed=await one('register',{name:'Mail check',cms:'CMS-MAIL',email:'unavailable@example.org',password});
+    const failed=await one('register',{name:'Mail check',institution:'Test College',email:'unavailable@example.org',password});
     assert.equal(failed.status,503);
     assert.match(failed.error,/verification email/);
-    assert.equal((await sql`SELECT email FROM registrations WHERE cms='CMS-MAIL'`).length,0);
+    assert.equal((await sql`SELECT email FROM registrations WHERE email='unavailable@example.org'`).length,0);
     for(const [i,request] of [one,two].entries()){
-      const email='tester'+i+'@example.org',cms='CMS-'+i;
-      const signup=await request('register',{name:'Test Student',cms,email,password});
+      const email='tester'+i+'@example.org',institution='College '+i;
+      const signup=await request('register',{name:'Test Student',institution,email,password});
       assert(signup.status<300,JSON.stringify(signup));
       assert.equal((await request('me')).user,null);
       const verified=await request('verify',{email,otp:mail.get(email)});
       assert(verified.status<300,JSON.stringify(verified));
-      assert.equal((await request('me')).user.cms.toUpperCase(),cms);
+      assert.equal((await request('me')).user.institution,institution);
       mail.clear();
-      const duplicate=await request('register',{name:'Test Student',cms:cms+'X',email,password});
+      const duplicate=await request('register',{name:'Test Student',institution,email,password});
       assert.equal(duplicate.status,409);
       assert.equal(mail.size,0);
-      assert.equal((await request('register',{name:'Test Student',cms,email:'extra'+email,password})).status,409);
+      assert.equal((await request('register',{name:'Test Student',institution:' ',email:'extra'+email,password})).status,400);
       assert.equal(mail.size,0);
     }
     assert.equal((await one('admin')).status,403);
@@ -76,9 +77,24 @@ test('verified accounts, enforced ownership, persistence, admin controls and log
     assert.equal(reviewed.questions[0].choice,final.questions[0].choice);
     assert.equal((await two('toggle',{id:bank[0].id,disabled:true})).status,200);
     assert((await two('admin')).questions.find(q=>q.id===bank[0].id).disabled);
+    // Recreate the previous identity columns while both students still have live sessions.
+    await db.exec(`ALTER TABLE users DROP COLUMN institution;
+      ALTER TABLE registrations DROP COLUMN institution;
+      ALTER TABLE users ADD COLUMN cms text UNIQUE;
+      UPDATE users SET cms=upper(id::text);
+      ALTER TABLE users ALTER COLUMN cms SET NOT NULL;
+      ALTER TABLE registrations ADD COLUMN cms text NOT NULL;`);
+    await ensureIdentitySchema(sql);
+    await ensureIdentitySchema(sql);
+    assert.equal((await one('me')).user.id,owner.id);
+    assert.equal((await two('admin')).totalAttempts,1);
+    const newcomer=client();
+    const email='after-upgrade@example.org';
+    assert.equal((await newcomer('register',{name:'New Student',institution:'City College',email,password})).status,200);
+    assert.equal((await newcomer('verify',{email,otp:mail.get(email)})).user.institution,'City College');
     assert.equal((await one('logout')).status,200);
     assert.equal((await one('get',{id})).status,401);
-    const back=await one('login',{cms:'CMS-0',password});
+    const back=await one('login',{email:'TESTER0@example.org',password});
     assert(back.status<300,JSON.stringify(back));
     assert.equal((await one('get',{id})).attempt.score,final.score);
   } finally {await db.close();}

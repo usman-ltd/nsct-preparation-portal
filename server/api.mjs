@@ -64,9 +64,9 @@ export function makeHandler({sql,bank,handleAuth=authRoute}) {
         const available=bank.filter(q=>!disabled.has(q.id));
         if (action==='me') return respond({user,subjects:subjects.map(s=>({...s,count:available.filter(q=>q.subject===s.id).length}))});
         if (action==='start') return respond({attempt:await start(body,available,user,sql)});
-        const students=await sql`SELECT u.id,u.name,u.cms,count(a.id)::int AS attempts,
+        const students=await sql`SELECT u.id,u.name,u.email,u.institution,count(a.id)::int AS attempts,
           activity.last_seen_at AS "lastActiveAt" FROM users u LEFT JOIN attempts a ON a.user_id=u.id
-          LEFT JOIN student_activity activity ON activity.user_id=u.id GROUP BY u.id,activity.last_seen_at ORDER BY u.name,u.cms`;
+          LEFT JOIN student_activity activity ON activity.user_id=u.id GROUP BY u.id,activity.last_seen_at ORDER BY u.name,u.email`;
         return respond({students,totalStudents:students.length,totalAttempts:students.reduce((n,s)=>n+s.attempts,0),
           questions:bank.map(({id,stem,subject})=>({id,stem,subject,disabled:disabled.has(id)}))});
       }
@@ -75,7 +75,7 @@ export function makeHandler({sql,bank,handleAuth=authRoute}) {
         if (!user.admin) return json({error:'Administrator access required.'},403);
         if (!uuid.test(body.id)) return json({error:'Record not found.'},404);
         if (action==='adminStudent') {
-          const [student]=await sql`SELECT u.id,u.name,u.cms,u.email,activity.last_seen_at AS "lastActiveAt" FROM users u LEFT JOIN student_activity activity ON activity.user_id=u.id WHERE u.id=${body.id}`;
+          const [student]=await sql`SELECT u.id,u.name,u.institution,u.email,activity.last_seen_at AS "lastActiveAt" FROM users u LEFT JOIN student_activity activity ON activity.user_id=u.id WHERE u.id=${body.id}`;
           if (!student) return json({error:'Student not found.'},404);
           const rows=await sql`SELECT state - 'questions' AS info FROM attempts WHERE user_id=${student.id} ORDER BY created_at DESC`;
           return respond({student,attempts:rows.map(r=>r.info)});

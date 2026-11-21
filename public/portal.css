@@ -866,3 +866,32 @@ details p {
     color: #111;
   }
 }
+
+.hero::before {
+  content: ""; position: absolute; inset: 0 0 0 26%; z-index: -1;
+  background-image: linear-gradient(90deg, #9dc2cd28 1px, transparent 1px), linear-gradient(#9dc2cd28 1px, transparent 1px);
+  background-size: 30px 30px; mask-image: linear-gradient(90deg, transparent, black);
+}
+.about { padding-block: clamp(2rem, 5vw, 4.5rem); }
+.about-intro, .supervisor { display: grid; align-items: center; gap: clamp(1.25rem, 4vw, 3.5rem); }
+.about-intro { grid-template-columns: 1.1fr 1fr; }
+.about-intro h1 { margin: .6rem 0 1rem; }
+.about figure { margin: 0; }
+.about figure img { display: block; width: 100%; border-radius: .5rem; }
+.about figcaption { margin-top: .5rem; font-size: .85rem; }
+.about-section { border-top: 1px solid #cedadc; margin-top: 2.5rem; padding-top: 2rem; }
+.about-section h2 { margin-bottom: 1.5rem; }
+.supervisor { grid-template-columns: auto minmax(0, 64ch); }
+.about h3 { margin: .75rem 0 .3rem; }
+.about p { line-height: 1.6; }
+.portrait { width: 8.5rem; height: 8.5rem; border-radius: 50%; object-fit: cover; object-position: center 18%; background: #e4edef; border: 1px solid #cbdadd; }
+.team { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1.25rem; }
+.team article { padding: 1.5rem; background: white; border: 1px solid #d5dfe1; border-radius: .5rem; }
+.team p { margin: .35rem 0; }
+.study-notes { max-width: 75ch; }
+.study-notes dt { font-weight: 700; }
+.study-notes dd { margin: .35rem 0 1.2rem; }
+@media (max-width: 720px) {
+  .about-intro, .team { grid-template-columns: 1fr; }
+  .supervisor { grid-template-columns: 1fr; gap: .4rem; }
+}

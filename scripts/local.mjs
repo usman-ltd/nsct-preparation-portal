@@ -23,7 +23,7 @@ const handle=makeHandler({sql,bank,handleAuth:createAuthRoutes({sendCode:async(e
 }})});
 const port=Number(process.env.PORT || 8743);
 const origin='http://localhost:'+port;
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.jpg':'image/jpeg','.css':'text/css; charset=utf-8'};
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.css':'text/css; charset=utf-8'};
 const server=createServer(async(req,res)=>{
   try {
     const url=new URL(req.url,origin);

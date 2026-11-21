@@ -96,11 +96,12 @@ function navigation(page) {
   $("#nav").innerHTML = user
     ? [
         navItem("", "Dashboard", page === ""),
+        '<a class="navlink" href="/about/">About Us</a>',
         navItem("history", "History", page === "history"),
         user.admin ? navItem("admin", "Admin", page.startsWith("admin")) : "",
         '<button class="linkbtn" data-do="logout">Sign out</button>',
       ].join("")
-    : '<span class="small">Student portal</span>';
+    : '<a class="navlink" href="/about/">About Us</a>';
 }
 const btn = (path, label, secondary = false) =>
   `<a class="btn${secondary ? " alt" : ""}" href="#/${attr(path)}">${escaped(label)}</a>`;
@@ -124,19 +125,12 @@ function landing(page) {
     ? "Enter the six-digit code sent to your email."
     : isRegister
       ? "Register with your university details to save your progress."
-      : "Use your CMS number to continue your preparation.";
-  const cms = field(
-    "cms",
-    "CMS number",
-    "text",
-    "username",
-    'maxlength="64" placeholder="e.g. F23-BSCS-0000" autocapitalize="none" spellcheck="false"',
-  );
+      : "Use your email address to continue your preparation.";
   const email = field(
     "email",
     "Email address",
     "email",
-    "email",
+    isRegister || verify ? "email" : "username",
     `maxlength="254" value="${attr(pendingEmail)}"`,
   );
   const pass = `<div class="field"><label for="account-password">Password</label>
@@ -162,10 +156,10 @@ function landing(page) {
       )
     : isRegister
       ? field("name", "Full name", "text", "name", 'maxlength="100"') +
-        cms +
         email +
+        field("institution", "University or college", "text", "organization", 'maxlength="160"') +
         pass
-      : cms + pass;
+      : email + pass;
   main.innerHTML = `<section class="landing"><div class="hero"><div>${eyebrow("Computer science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Prepare for the National Skills Competency Test with a combined Computer Science paper, or practise individual subjects at your own pace.</p></div><div class="herofoot"><span>Riphah International University · Sahiwal</span></div></div><div class="panel auth"><h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
 }
 function attemptItem(a) {
@@ -377,7 +371,7 @@ function downloadCsv(a) {
 function adminStudent({ student, attempts }) {
   const completed = attempts.filter((a) => a.completed);
   const title = escaped(student.name);
-  main.innerHTML = `<div class="noprint">${btn("admin", "Back to administration", true)}</div><section class="summary section">${eyebrow("Student activity")}<h1>${title}</h1><p>CMS ${escaped(student.cms)} · ${escaped(student.email)}</p><p>Last active ${escaped(stamp(student.lastActiveAt))}</p></section><section class="panel section"><h2>Practice history</h2><div class="metrics"><div><b class="metric">${attempts.length}</b><span>Papers started</span></div><div><b class="metric">${completed.length}</b><span>Completed</span></div></div>${attempts.map((a) => `<article class="item"><div><h3>${Number(a.size)}-question ${a.mode === "learn" ? "practice" : "exam"}</h3><p>${a.completed ? `${Number(a.score)} / ${Number(a.size)} correct` : `${Number(a.answered)} / ${Number(a.size)} answered`}</p><div class="small">Started ${escaped(stamp(a.createdAt))}<br>${a.completed ? "Completed" : "Updated"} ${escaped(stamp(a.completedAt || a.updatedAt))}</div></div>${btn("admin-attempt/" + code(a.id), a.completed ? "View result" : "View progress", true)}</article>`).join("") || '<p class="empty">This student has not started any papers.</p>'}</section>`;
+  main.innerHTML = `<div class="noprint">${btn("admin", "Back to administration", true)}</div><section class="summary section">${eyebrow("Student activity")}<h1>${title}</h1><p>${escaped(student.email)}${student.institution ? " · " + escaped(student.institution) : ""}</p><p>Last active ${escaped(stamp(student.lastActiveAt))}</p></section><section class="panel section"><h2>Practice history</h2><div class="metrics"><div><b class="metric">${attempts.length}</b><span>Papers started</span></div><div><b class="metric">${completed.length}</b><span>Completed</span></div></div>${attempts.map((a) => `<article class="item"><div><h3>${Number(a.size)}-question ${a.mode === "learn" ? "practice" : "exam"}</h3><p>${a.completed ? `${Number(a.score)} / ${Number(a.size)} correct` : `${Number(a.answered)} / ${Number(a.size)} answered`}</p><div class="small">Started ${escaped(stamp(a.createdAt))}<br>${a.completed ? "Completed" : "Updated"} ${escaped(stamp(a.completedAt || a.updatedAt))}</div></div>${btn("admin-attempt/" + code(a.id), a.completed ? "View result" : "View progress", true)}</article>`).join("") || '<p class="empty">This student has not started any papers.</p>'}</section>`;
 }
 function adminPaper(a) {
   if (a.completed) {
@@ -394,7 +388,7 @@ function administrator(data) {
       "Administration",
       "Review student activity and manage the questions available for new papers.",
     ) +
-    `<section class="panel"><h2>Student activity</h2><div class="metrics"><div><b class="metric">${Number(data.totalStudents)}</b><span>Students</span></div><div><b class="metric">${Number(data.totalAttempts)}</b><span>Papers started</span></div></div><div class="tablewrap"><table><thead><tr><th>Name</th><th>CMS number</th><th>Attempts</th><th>Last active</th></tr></thead><tbody>${data.students.map((s) => `<tr><td><a href="#/admin-student/${code(s.id)}">${escaped(s.name)}</a></td><td>${escaped(s.cms)}</td><td>${Number(s.attempts)}</td><td>${escaped(stamp(s.lastActiveAt))}</td></tr>`).join("")}</tbody></table></div></section><section class="section panel"><h2>Question bank</h2><div class="choices section"><label class="field">Search questions<input id="bankSearch" type="search"></label><label class="field">Subject<select id="bankSubject"><option value="">All subjects</option>${subjects.map((s) => `<option value="${attr(s.id)}">${escaped(s.name)}</option>`).join("")}</select></label></div><div id="bankResults"></div></section>`;
+    `<section class="panel"><h2>Student activity</h2><div class="metrics"><div><b class="metric">${Number(data.totalStudents)}</b><span>Students</span></div><div><b class="metric">${Number(data.totalAttempts)}</b><span>Papers started</span></div></div><div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Attempts</th><th>Last active</th></tr></thead><tbody>${data.students.map((s) => `<tr><td><a href="#/admin-student/${code(s.id)}">${escaped(s.name)}</a></td><td>${escaped(s.email)}</td><td>${Number(s.attempts)}</td><td>${escaped(stamp(s.lastActiveAt))}</td></tr>`).join("")}</tbody></table></div></section><section class="section panel"><h2>Question bank</h2><div class="choices section"><label class="field">Search questions<input id="bankSearch" type="search"></label><label class="field">Subject<select id="bankSubject"><option value="">All subjects</option>${subjects.map((s) => `<option value="${attr(s.id)}">${escaped(s.name)}</option>`).join("")}</select></label></div><div id="bankResults"></div></section>`;
   bankResults();
 }
 function bankResults() {

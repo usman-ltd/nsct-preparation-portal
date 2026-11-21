@@ -1,13 +1,13 @@
 BEGIN;
 CREATE TABLE IF NOT EXISTS users (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
- name text NOT NULL, cms text NOT NULL UNIQUE CHECK(cms=upper(cms)),
+ name text NOT NULL, institution text,
  email text NOT NULL UNIQUE CHECK(email=lower(email)), password_hash text NOT NULL,
  admin boolean NOT NULL DEFAULT false, created_at timestamptz NOT NULL DEFAULT now()
 );
 -- Verified users are promoted atomically from expiring registration challenges.
 CREATE TABLE IF NOT EXISTS registrations (
- token_hash text PRIMARY KEY, name text NOT NULL, cms text NOT NULL,
+ token_hash text PRIMARY KEY, name text NOT NULL, institution text,
  email text NOT NULL, password_hash text NOT NULL, code_hash text NOT NULL,
  code_expires_at timestamptz NOT NULL, expires_at timestamptz NOT NULL,
  tries integer NOT NULL DEFAULT 0, sent_at timestamptz NOT NULL DEFAULT now()

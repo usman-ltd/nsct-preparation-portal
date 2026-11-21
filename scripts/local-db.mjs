@@ -1,6 +1,8 @@
 import {PGlite} from '@electric-sql/pglite';
 import {readFile} from 'node:fs/promises';
 
+import {ensureIdentitySchema} from '../server/identity-schema.mjs';
+
 export async function openLocal(directory) {
   const db=new PGlite(directory);
   for (const filename of ['../db.sql','../server/practice.sql']) {
@@ -10,5 +12,6 @@ export async function openLocal(directory) {
     const query=parts.reduce((text,part,i)=>text+(i?'$'+i:'')+part,'');
     return (await db.query(query,values)).rows;
   };
+  await ensureIdentitySchema(sql);
   return {db,sql};
 }
