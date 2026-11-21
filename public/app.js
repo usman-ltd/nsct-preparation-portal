@@ -108,7 +108,7 @@ const eyebrow = (text) => `<div class="eyebrow">${escaped(text)}</div>`;
 const heading = (title, desc = "", tag = "NSCT Preparation Portal") =>
   `<div class="heading">${eyebrow(tag)}<h1>${escaped(title)}</h1>${desc ? `<p>${escaped(desc)}</p>` : ""}</div>`;
 function subjectTable() {
-  return `<section class="section panel"><div class="bar"><div><div class="eyebrow">Paper blueprint</div><h2>Subject weightage</h2></div><span class="small">Full combined paper</span></div><div class="subjectlist">${subjects.map((s) => `<div class="subjectrow"><span>${escaped(s.name)}</span><progress value="${Number(s.weight)}" max="20" aria-label="${attr(s.name)} weight"></progress><b>${Number(s.weight)}%</b></div>`).join("")}</div></section>`;
+  return `<section class="section panel"><div class="bar"><div><div class="eyebrow">Paper blueprint</div><h2>Subject weightage</h2></div><span class="small">Share of a combined paper</span></div><div class="subjectlist">${subjects.map((s) => `<div class="subjectrow"><span>${escaped(s.name)}</span><progress value="${Number(s.weight)}" max="100" aria-label="${attr(s.name)} weight"></progress><b>${Number(s.weight)}%</b></div>`).join("")}</div></section>`;
 }
 function landing(page) {
   const field = (name, label, type, auto, more = "") =>
@@ -130,7 +130,7 @@ function landing(page) {
     "CMS number",
     "text",
     "username",
-    'maxlength="64" autocapitalize="none" spellcheck="false"',
+    'maxlength="64" placeholder="e.g. F23-BSCS-0034" autocapitalize="none" spellcheck="false"',
   );
   const email = field(
     "email",
@@ -166,7 +166,7 @@ function landing(page) {
         email +
         pass
       : cms + pass;
-  main.innerHTML = `<section class="landing"><div class="hero"><div class="sheets" aria-hidden="true"></div><div>${eyebrow("Computer science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Build a full practice paper or focus on the subjects you want to improve. Learn as you go, or review your answers after the exam.</p></div><div class="herofoot"><span>Riphah International University · Sahiwal</span></div></div><div class="panel auth">${eyebrow("Student access")}<h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
+  main.innerHTML = `<section class="landing"><div class="hero"><div class="sheets" aria-hidden="true"></div><div>${eyebrow("Computer science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Prepare for the National Skills Competency Test with self-paced Computer Science practice. Build a combined paper or focus on the subjects you want to improve.</p></div><div class="herofoot"><span>Riphah International University · Sahiwal</span></div></div><div class="panel auth">${eyebrow("Student access")}<h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
 }
 function attemptItem(a) {
   const label = a.completed ? "View report" : "Resume";
@@ -242,10 +242,26 @@ function setupChange() {
     !selected.length || Boolean(shortage);
 }
 const qurl = (a, i) => `attempt/${code(a.id)}/${i + 1}`;
+// Historical papers may store the worked solution in several answer slots.
+function explanationNotes(q) {
+  const reasons = (q.explanations || []).map(text => (text || "").trim());
+  const normalize = text => text.toLowerCase().replace(/\s+/g, " ").trim();
+  const main = reasons[q.correct] || "";
+  const shared = normalize(main);
+  const notes = main && !/^The source identifies /i.test(main) ? [[q.correct, main]] : [];
+  const normalized = reasons.map(normalize);
+  for (const [i, reason] of reasons.entries()) {
+    const text = normalized[i];
+    if (i === q.correct || !text || (shared && (shared.includes(text) || text.includes(shared)))) continue;
+    if (normalized.indexOf(text) !== normalized.lastIndexOf(text)) continue;
+    notes.push([i, reason]);
+  }
+  return notes;
+}
 function feedback(q) {
   if (!Number.isInteger(q.correct)) return "";
   const right = q.choice === q.correct;
-  return `<div class="feedback"><span class="badge ${right ? "good" : "bad"}">${right ? "Correct answer" : "Incorrect answer"}</span><p><strong>Correct choice ${labels[q.correct]}.</strong> ${escaped(q.options[q.correct])}</p>${q.options.map((option, i) => `<p><strong>${labels[i]}. ${escaped(option)}</strong><br>${escaped(q.explanations?.[i] || "An explanation is unavailable for this option.")}</p>`).join("")}</div>`;
+  return `<div class="feedback"><span class="badge ${right ? "good" : "bad"}">${right ? "Correct answer" : "Incorrect answer"}</span><p><strong>Correct choice ${labels[q.correct]}.</strong> ${escaped(q.options[q.correct])}</p>${explanationNotes(q).map(([i, reason]) => i === q.correct ? `<p>${escaped(reason)}</p>` : `<p><strong>${labels[i]}. ${escaped(q.options[i])}</strong><br>${escaped(reason)}</p>`).join("")}</div>`;
 }
 function exam(a, index) {
   activeQuestion = index;
@@ -334,7 +350,7 @@ function downloadCsv(a) {
       q.options[q.choice],
       q.options[q.correct],
       q.choice === q.correct ? "Correct" : "Incorrect",
-      q.options.map((o, j) => `${o} — ${q.explanations?.[j] || ""}`).join("\n"),
+      explanationNotes(q).map(([i, reason]) => `${q.options[i]} — ${reason}`).join("\n"),
     ]),
   );
   const cell = (v) => {

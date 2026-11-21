@@ -48,4 +48,6 @@ Run `npm run check` and `npm test`. The database integration tests use isolated,
 
 ## Publishing updates
 
+For OTP delivery to classmates without a sending domain, set `GMAIL_USER` to the sending Gmail address and `GMAIL_APP_PASSWORD` to its Google app password in Netlify's Production Functions environment. Enable 2-Step Verification on the Google account to create an app password. Redeploy after saving the variables. This configuration takes precedence over Resend. With both Gmail variables absent, the original Resend configuration continues to work. The Resend testing sender only delivers to the Resend account owner's email.
+
 The production site at https://riphahsahiwalnsct.netlify.app builds from the main branch of https://github.com/usman-ltd/nsct-preparation-portal. Push a tested commit to main to deploy it. Keep service credentials in the existing Netlify project environment settings. The public repository includes the practice question bank and its answer keys.

@@ -174,8 +174,31 @@ main:focus {
   padding: 1.4rem 0;
 }
 footer {
-  border-top: 1px solid var(--line);
-  background: #f2f5f3;
+  border-top: 3px solid #d4a45c;
+  background: var(--navy);
+}
+footer .foot {
+  color: #d9e4ea;
+  padding-block: 1.65rem;
+  line-height: 1.6;
+}
+.foot strong, .foot a {
+  color: white;
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.footer-links a {
+  white-space: nowrap;
+  text-underline-offset: .25em;
+}
+.auth, .section.panel {
+  box-shadow: 0 6px 24px rgb(16 47 69 / 6%);
+}
+.subjectrow b {
+  font-variant-numeric: tabular-nums;
 }
 .landing,
 .columns,

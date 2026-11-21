@@ -1,5 +1,6 @@
 import {createHash, createHmac, randomBytes, randomInt, scrypt, timingSafeEqual} from 'node:crypto';
 import {promisify} from 'node:util';
+import nodemailer from 'nodemailer';
 
 const derive = promisify(scrypt);
 const settings = {N:32768, r:8, p:3, maxmem:64*1024*1024};
@@ -69,11 +70,19 @@ async function limits(sql,ip,action,account,ipLimit,accountLimit) {
 }
 
 async function sendMail(email,otp) {
+  const subject='Verify your NSCT Preparation Portal account';
+  const text='Your NSCT Preparation Portal verification code is '+otp+'. It expires in 10 minutes. If you did not request this code, you can ignore this email.';
+  if (process.env.GMAIL_USER || process.env.GMAIL_APP_PASSWORD) {
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) throw new Error('Incomplete Gmail configuration');
+    const transporter=nodemailer.createTransport({service:'gmail',auth:{user:process.env.GMAIL_USER,
+      pass:process.env.GMAIL_APP_PASSWORD.replace(/\s/g,'')},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:12000});
+    await transporter.sendMail({from:process.env.GMAIL_USER,to:email,subject,text});
+    return;
+  }
   if (!process.env.RESEND_API_KEY || !process.env.MAIL_FROM) throw new Error('Mail configuration unavailable');
   const response=await fetch('https://api.resend.com/emails',{
     method:'POST', headers:{Authorization:'Bearer '+process.env.RESEND_API_KEY,'Content-Type':'application/json'},
-    body:JSON.stringify({from:process.env.MAIL_FROM,to:[email],subject:'Verify your NSCT Preparation Portal account',
-      text:'Your NSCT Preparation Portal verification code is '+otp+'. It expires in 10 minutes. If you did not request this code, you can ignore this email.'}),
+    body:JSON.stringify({from:process.env.MAIL_FROM,to:[email],subject,text}),
     signal:AbortSignal.timeout(10000)
   });
   if (!response.ok) throw new Error('Verification email unavailable');
@@ -112,11 +121,19 @@ async function startSession(req,sql,user) {
 }
 
 export function createAuthRoutes({sendCode=sendMail}={}) {
+  async function deliver(email,otp) {
+    try {await sendCode(email,otp); return true;}
+    catch (error) {
+      console.error('OTP delivery failed',process.env.GMAIL_USER?'gmail':'mail',error.responseCode || error.code || error.name);
+      return false;
+    }
+  }
   return async function handleAuth(action,body,req,sql,clientIp) {
     const ip=clientIp || req.headers.get('x-nf-client-connection-ip') || 'unknown';
     const cms=cmsValue(body.cms), email=emailValue(body.email);
     const limited=()=>failure('Too many requests. Try again in 15 minutes.',429);
     const expired=()=>failure('Start registration again to get a new verification code.',410);
+    const deliveryFailed=()=>failure('We could not send your verification email. Try again later or use Contact us below.',503);
     if (randomInt(64)===0) {
       await sql`DELETE FROM auth_limits WHERE until_at<=now()`;
       await sql`DELETE FROM sessions WHERE expires_at<=now()`;
@@ -128,10 +145,15 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
       if (!name || name.length>120 || !validEmail(email) || !validCms(cms) || !validPassword(body.password))
         return failure('Enter a name, valid email and CMS number, and a password between 12 and 128 characters.',400);
       if (!await limits(sql,ip,'register',email,30,5)) return limited();
+      const existing=await sql`SELECT 1 FROM users WHERE cms=${cms} OR email=${email} LIMIT 1`;
+      if (existing.length) return failure('This email or CMS number is already registered. Sign in with your CMS number.',409);
       const raw=token(), key=digest(raw), otp=code(), hash=await passwordHash(body.password);
       await sql`INSERT INTO registrations (token_hash,name,cms,email,password_hash,code_hash,code_expires_at,expires_at)
         VALUES (${key},${name},${cms},${email},${hash},${keyed(key+'/'+otp)},now()+interval '10 minutes',now()+interval '1 hour')`;
-      await sendCode(email,otp);
+      if (!await deliver(email,otp)) {
+        await sql`DELETE FROM registrations WHERE token_hash=${key}`;
+        return deliveryFailed();
+      }
       const response=reply({verificationRequired:true,email});
       setCookie(req,response,'pending',raw,3600);
       return response;
@@ -144,14 +166,16 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
       if (!await limits(sql,ip,action,email,60,action==='verify'?15:4)) return limited();
       if (action==='resend') {
         const next=code();
-        const updated=await sql`UPDATE registrations SET code_hash=${keyed(key+'/'+next)},sent_at=now(),
-          code_expires_at=now()+interval '10 minutes', tries=0 WHERE token_hash=${key} AND email=${email}
+        const updated=await sql`UPDATE registrations SET sent_at=now() WHERE token_hash=${key} AND email=${email}
           AND expires_at>now() AND sent_at<=now()-interval '60 seconds' RETURNING email`;
         if (!updated.length) {
           const pending=await sql`SELECT 1 FROM registrations WHERE token_hash=${key} AND email=${email} AND expires_at>now()`;
           return pending.length?failure('Wait a minute before requesting another code.',429):expired();
         }
-        await sendCode(email,next);
+        if (!await deliver(email,next)) return deliveryFailed();
+        const replaced=await sql`UPDATE registrations SET code_hash=${keyed(key+'/'+next)},code_expires_at=now()+interval '10 minutes',tries=0
+          WHERE token_hash=${key} AND email=${email} AND expires_at>now() RETURNING email`;
+        if (!replaced.length) return expired();
         return reply({verificationRequired:true,email});
       }
       const otp=body.code ?? body.otp;

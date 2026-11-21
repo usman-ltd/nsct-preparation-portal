@@ -10,7 +10,10 @@ test('verified accounts, enforced ownership, persistence, admin controls and log
   process.env.AUTH_SECRET=randomBytes(48).toString('base64');
   const {db,sql}=await openLocal();
   const mail=new Map();
-  const handle=makeHandler({sql,bank,handleAuth:createAuthRoutes({sendCode:async(email,code)=>mail.set(email,code)})});
+  const handle=makeHandler({sql,bank,handleAuth:createAuthRoutes({sendCode:async(email,code)=>{
+    if (email==='unavailable@example.org') throw new Error('Mail provider unavailable');
+    mail.set(email,code);
+  }})});
   function client(){
     const cookies=new Map();
     return async(action,body={})=>{
@@ -27,6 +30,10 @@ test('verified accounts, enforced ownership, persistence, admin controls and log
   const password=randomBytes(24).toString('hex');
   try{
     assert.equal((await one('list')).status,401);
+    const failed=await one('register',{name:'Mail check',cms:'CMS-MAIL',email:'unavailable@example.org',password});
+    assert.equal(failed.status,503);
+    assert.match(failed.error,/verification email/);
+    assert.equal((await sql`SELECT email FROM registrations WHERE cms='CMS-MAIL'`).length,0);
     for(const [i,request] of [one,two].entries()){
       const email='tester'+i+'@example.org',cms='CMS-'+i;
       const signup=await request('register',{name:'Test Student',cms,email,password});
@@ -35,6 +42,12 @@ test('verified accounts, enforced ownership, persistence, admin controls and log
       const verified=await request('verify',{email,otp:mail.get(email)});
       assert(verified.status<300,JSON.stringify(verified));
       assert.equal((await request('me')).user.cms.toUpperCase(),cms);
+      mail.clear();
+      const duplicate=await request('register',{name:'Test Student',cms:cms+'X',email,password});
+      assert.equal(duplicate.status,409);
+      assert.equal(mail.size,0);
+      assert.equal((await request('register',{name:'Test Student',cms,email:'extra'+email,password})).status,409);
+      assert.equal(mail.size,0);
     }
     assert.equal((await one('admin')).status,403);
     assert.equal((await two('toggle',{id:bank[0].id,disabled:true})).status,403);
