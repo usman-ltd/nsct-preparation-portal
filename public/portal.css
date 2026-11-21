@@ -354,6 +354,31 @@ select {
 input::placeholder {
   color: #697982;
 }
+.password-control {
+  position: relative;
+}
+.password-control input {
+  padding-inline-end: 3rem;
+}
+.password-control input::-ms-reveal {
+  display: none;
+}
+.password-control button {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.password-control input[type="password"] + button .eye-slash {
+  display: none;
+}
 .btn {
   background: var(--navy);
   color: white;

@@ -139,15 +139,18 @@ function landing(page) {
     "email",
     `maxlength="254" value="${attr(pendingEmail)}"`,
   );
-  const pass = field(
-    "password",
-    "Password",
-    "password",
-    isRegister ? "new-password" : "current-password",
-    isRegister
-      ? 'minlength="12" maxlength="128" title="Use at least 12 characters"'
-      : 'maxlength="128"',
-  );
+  const pass = `<div class="field"><label for="account-password">Password</label>
+    <div class="password-control">
+      <input id="account-password" name="password" type="password" required maxlength="128"
+        autocomplete="${isRegister ? "new-password" : "current-password"}" autocapitalize="none" spellcheck="false"
+        ${isRegister ? 'minlength="12" title="Use at least 12 characters"' : ""}>
+      <button type="button" data-do="password-visibility" aria-controls="account-password" aria-label="Show password" title="Show password">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>
+          <path class="eye-slash" d="M3 3l18 18"/>
+        </svg>
+      </button>
+    </div></div>`;
   const fields = verify
     ? email +
       field(
@@ -554,6 +557,14 @@ document.addEventListener("click", (event) => {
   const el = event.target.closest("button");
   if (!el || el.disabled || (el.type === "submit" && el.form)) return;
   const { choice, toggle, page, do: action } = el.dataset;
+  if (action === "password-visibility") {
+    const input = el.form.elements.namedItem("password");
+    const reveal = input.type === "password";
+    input.type = reveal ? "text" : "password";
+    el.title = reveal ? "Hide password" : "Show password";
+    el.setAttribute("aria-label", el.title);
+    return;
+  }
   if (page) {
     adminPage += Number(page);
     bankResults();
