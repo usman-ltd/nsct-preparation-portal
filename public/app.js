@@ -130,7 +130,7 @@ function landing(page) {
     "CMS number",
     "text",
     "username",
-    'maxlength="64" placeholder="e.g. F23-BSCS-0034" autocapitalize="none" spellcheck="false"',
+    'maxlength="64" placeholder="e.g. F23-BSCS-0000" autocapitalize="none" spellcheck="false"',
   );
   const email = field(
     "email",
@@ -166,7 +166,7 @@ function landing(page) {
         email +
         pass
       : cms + pass;
-  main.innerHTML = `<section class="landing"><div class="hero"><div class="sheets" aria-hidden="true"></div><div>${eyebrow("Computer science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Prepare for the National Skills Competency Test with self-paced Computer Science practice. Build a combined paper or focus on the subjects you want to improve.</p></div><div class="herofoot"><span>Riphah International University · Sahiwal</span></div></div><div class="panel auth">${eyebrow("Student access")}<h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
+  main.innerHTML = `<section class="landing"><div class="hero"><div>${eyebrow("Computer science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Prepare for the National Skills Competency Test with a combined Computer Science paper, or practise individual subjects at your own pace.</p></div><div class="herofoot"><span>Riphah International University · Sahiwal</span></div></div><div class="panel auth"><h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
 }
 function attemptItem(a) {
   const label = a.completed ? "View report" : "Resume";

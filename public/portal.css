@@ -209,7 +209,20 @@ footer .foot {
   align-items: stretch;
 }
 .landing {
-  grid-template-columns: minmax(0, 1.48fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 1fr);
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+.landing > .hero, .landing > .auth {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.landing > .auth {
+  padding: clamp(1.35rem, 4vw, 3.25rem);
 }
 .hero,
 .panel,
@@ -230,27 +243,16 @@ footer .foot {
   justify-content: space-between;
   gap: 2.2rem;
 }
-.hero:before {
-  content: "";
-  position: absolute;
-  inset: 0 0 0 38%;
-  background-image:
-    linear-gradient(90deg, #87b7c516 1px, transparent 1px),
-    linear-gradient(#87b7c516 1px, transparent 1px);
-  background-size: 30px 30px;
-  mask-image: linear-gradient(90deg, transparent, black);
-  z-index: -2;
-}
 .hero h1 {
-  font-size: clamp(3rem, 6vw, 5.6rem);
+  font-size: clamp(3rem, 5vw, 4.7rem);
   letter-spacing: -0.058em;
   line-height: 0.98;
   position: relative;
-  max-width: 11ch;
+  max-width: 14ch;
 }
 .hero h1 em {
-  font-weight: 400;
-  color: #f1c17c;
+  font-style: normal;
+  font-weight: inherit;
 }
 .hero p,
 .summary p {
@@ -289,40 +291,6 @@ footer .foot {
   border-top: 1px solid #ffffff36;
   padding-top: 0.9rem;
   font-size: 0.9rem;
-}
-.sheets {
-  width: 163px;
-  height: 192px;
-  position: absolute;
-  right: -44px;
-  bottom: 70px;
-  transform: rotate(17deg);
-  border: 1px solid #87b6c977;
-  border-radius: 8px;
-  box-shadow:
-    -10px 12px 0 -1px var(--navy),
-    -10px 12px #89b5c680,
-    -20px 24px 0 -1px var(--navy),
-    -20px 24px #89b5c660;
-  background: repeating-linear-gradient(
-      0deg,
-      transparent 0 14px,
-      #9db9c439 14px 16px,
-      transparent 16px 25px
-    )
-    23px 48px/80px 105px no-repeat;
-  z-index: -1;
-  opacity: 0.75;
-}
-.sheets:before {
-  content: "";
-  position: absolute;
-  top: 25px;
-  left: 22px;
-  width: 56px;
-  height: 5px;
-  background: #e9b45bb0;
-  border-radius: 2px;
 }
 .panel,
 .tinted {
@@ -763,9 +731,6 @@ details p {
   .hero p {
     max-width: 38ch;
   }
-  .sheets {
-    right: 0;
-  }
   .exam-grid {
     gap: 0.8rem;
   }
@@ -806,18 +771,14 @@ details p {
   }
   .hero {
     padding: 1.3rem;
-    min-height: 305px;
+    min-height: auto;
   }
   .hero h1 {
     font-size: 3.1rem;
-    max-width: 9ch;
+    max-width: 16ch;
   }
   .hero p {
     max-width: 29ch;
-  }
-  .sheets {
-    opacity: 0.35;
-    right: -73px;
   }
   .foot {
     gap: 0.35rem;
