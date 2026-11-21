@@ -1,0 +1,297 @@
+TCP|Transmission Control Protocol provides a reliable, ordered byte stream and retransmits missing data.
+UDP|User Datagram Protocol sends independent datagrams without built-in delivery or ordering guarantees.
+HTTP|Hypertext Transfer Protocol defines how clients request resources and servers respond.
+HTTPS|HTTPS protects HTTP traffic using TLS for confidentiality, integrity, and server authentication.
+FTP|File Transfer Protocol transfers files using separate control and data connections.
+SFTP|SSH File Transfer Protocol transfers and manages files over an authenticated SSH connection.
+SMTP|Simple Mail Transfer Protocol submits and relays outgoing email between mail systems.
+POP3|Post Office Protocol version 3 retrieves messages from a mailbox.
+IMAP|Internet Message Access Protocol synchronizes mail folders and messages with the server.
+DNS|The Domain Name System resolves names into records such as IP addresses.
+ARP|Address Resolution Protocol maps a local IPv4 address to a link-layer address.
+ICMP|Internet Control Message Protocol carries network diagnostics and error reports for IP.
+SNMP|Simple Network Management Protocol reads and updates managed-device information.
+DHCP|Dynamic Host Configuration Protocol leases addresses and supplies network configuration.
+RTP|Real-time Transport Protocol numbers and timestamps packets carrying media streams.
+BGP|Border Gateway Protocol exchanges reachability information and AS paths between routing domains.
+Telnet|Telnet provides a text terminal connection and sends its traffic without encryption by default.
+Router|A router forwards IP packets between networks using routing information.
+Switch|An Ethernet switch forwards frames according to destination MAC addresses.
+Bridge|A bridge connects link-layer segments and selectively forwards frames.
+Repeater|A repeater regenerates or repeats a signal to extend its reach.
+PCM|Pulse-code modulation samples and quantizes an analog signal, then represents samples as binary values.
+ASK|Amplitude-shift keying encodes symbols by changing the carrier amplitude.
+FSK|Frequency-shift keying encodes symbols by changing carrier frequency.
+PSK|Phase-shift keying changes the phase of the carrier to represent symbols.
+QAM|Quadrature amplitude modulation combines amplitude and phase changes to encode symbols.
+IPv6|IPv6 uses 128-bit IP addresses.
+IPv4|IPv4 uses 32-bit IP addresses.
+Port Number|A transport-layer port identifies the application endpoint on a host.
+Routing|Routing selects paths along which packets travel between networks.
+Encapsulation|Encapsulation wraps upper-layer data in lower-layer protocol headers or trailers.
+Fragmentation|Fragmentation splits a packet into smaller units to fit a link's maximum transmission unit.
+Session Layer|The OSI session layer manages conversations, synchronization, and checkpoints.
+Transport Layer|The OSI transport layer provides process-to-process delivery and can implement reliability.
+Data Link Layer|The data link layer deals with frames, local addressing, and access to a link.
+Network Layer|The network layer provides logical addressing and forwarding between networks.
+Deductive|Deduction applies a general rule to a particular case.
+Inductive|Induction infers a general pattern from specific observations.
+Abductive|Abduction proposes a plausible explanation for observed evidence.
+Heuristic|A heuristic uses a practical rule to find a useful answer without guaranteeing optimality.
+Decomposition|Decomposition splits a complex problem into smaller tasks that can be solved independently.
+Abstraction|Abstraction retains the details needed for a task and hides irrelevant implementation detail.
+Debugging|Debugging locates the cause of a fault and corrects it.
+Testing|Testing executes or evaluates cases to check observed behavior against expected behavior.
+Coding|Coding translates a design into executable instructions.
+Compilation|Compilation translates source code into another representation, often machine or byte code.
+Execution|Execution runs the instructions that make up a program.
+Deployment|Deployment releases a built system to the environment where users access it.
+Compiler|A compiler translates source code and detects errors in the language's rules.
+Debugger|A debugger lets a programmer inspect running code, pause at breakpoints, and examine values.
+Loader|A loader places an executable and required resources in memory so it can run.
+Linker|A linker resolves references between object files and libraries to produce a loadable program.
+Analysis|Analysis identifies requirements, relationships, constraints, and assumptions before implementation.
+Optimization|Optimization reduces resource use or improves a chosen objective while preserving required behavior.
+Efficiency|Efficiency describes how much time, memory, or other resources a solution consumes.
+Graph|A graph represents entities as vertices and relationships as edges.
+Table|A table organizes information in rows and columns for lookup and comparison.
+Sorting|Sorting places elements in a specified order based on a key.
+Searching|Searching locates items matching a key or condition.
+Data Mining|Data mining discovers recurring patterns, associations, and other structure in datasets.
+Mining|Data mining discovers recurring patterns and relationships in datasets.
+Practice|Solving varied problems and checking the results develops the ability to select and apply reasoning strategies.
+Brute Force|A brute-force method systematically tries candidates without relying on a shortcut.
+Guessing|Guessing selects a possibility without a systematic rule for choosing or validating it.
+Comments|Comments record intent, assumptions, and otherwise non-obvious design decisions for readers.
+Readability|Readable names, formatting, and clear control flow make code easier to maintain.
+Structuring|Structuring groups related information according to an explicit organization.
+Divide & Conquer|Divide and conquer splits a problem into smaller instances, solves them, and combines their results.
+Binary Search|Binary search compares the midpoint of an ordered range, then discards half the remaining candidates.
+Flowchart|A flowchart uses symbols and directed connections to show decisions and processing steps.
+Stack|A stack removes the most recently added item first, following last-in, first-out order.
+Queue|A queue removes the earliest added item first, following first-in, first-out order.
+Heap|A binary heap keeps a minimum or maximum priority element at its root.
+Array|An array stores indexed elements in a sequence, commonly in contiguous memory.
+List|A list is an ordered collection that can hold repeated values.
+Tuple|A Python tuple is an ordered immutable sequence.
+Set|A set stores distinct elements and supports membership tests.
+Dictionary|A dictionary maps keys to values, so a value can be retrieved by its key.
+Tree|A rooted tree organizes nodes in a hierarchy of parent-child relationships.
+Linked List|A linked list connects nodes through references and can splice a known node without shifting an array.
+Deque|A double-ended queue supports insertion and removal at either end.
+BFS|Breadth-first search uses a queue to visit each distance layer before the next.
+DFS|Depth-first search follows a path before backtracking, using recursion or an explicit stack.
+Preorder|Preorder traversal visits the root before its left and right subtrees.
+Inorder|Inorder traversal visits the left subtree, root, then right subtree in a binary tree.
+Postorder|Postorder traversal visits both subtrees before the root.
+Merge Sort|Merge sort divides the input, sorts the parts, and merges the sorted runs in O(n log n) time.
+Quick Sort|Quicksort partitions around a pivot and recursively sorts the parts.
+Heap Sort|Heapsort builds a heap and repeatedly extracts its extreme element.
+Bubble Sort|Bubble sort repeatedly compares neighboring elements and swaps those that are out of order.
+Selection Sort|Selection sort repeatedly chooses the smallest remaining element for the next position.
+Insertion Sort|Insertion sort grows a sorted prefix by inserting the next element into its proper place.
+Dijkstra|Dijkstra's algorithm finds shortest paths from one source in a graph with nonnegative edge weights.
+Prim|Prim's algorithm grows a minimum spanning tree by selecting a minimum-weight edge crossing its current boundary.
+Kruskal|Kruskal's algorithm adds edges by ascending weight and skips any edge that would make a cycle.
+Bellman-Ford|Bellman-Ford relaxes edges repeatedly and can detect negative cycles reachable from its source.
+Floyd-Warshall|Floyd-Warshall finds all-pairs shortest paths by progressively allowing more intermediate vertices.
+Dynamic Programming|Dynamic programming saves solutions to overlapping subproblems and reuses them.
+Backtracking|Backtracking builds candidates step by step and abandons branches that cannot lead to a solution.
+Greedy|A greedy algorithm commits to a locally best choice at each step.
+Linear Probing|Linear probing scans successive slots in a hash table to resolve a collision.
+Double Hashing|Double hashing uses a second hash to determine how far to step between probes.
+Chaining|Chaining stores multiple keys in a collection associated with the same hash bucket.
+Encapsulation|In object-oriented design, encapsulation groups state and behavior behind an interface.
+Inheritance|Inheritance allows a derived class to reuse or extend behavior of a base class.
+Polymorphism|Polymorphism permits the same interface to invoke different implementations.
+Function|A function groups reusable behavior behind a callable interface with parameters and a result.
+Loop|A loop repeats a block according to a continuation condition or iteration sequence.
+Recursion|Recursion solves smaller instances by calling the same function until a base case is reached.
+Variable|A variable is a named binding or storage location for a value.
+Waterfall|Waterfall organizes development into successive phases with defined deliverables.
+Agile|Agile approaches deliver increments frequently and use feedback to adapt priorities.
+Spiral|The spiral model repeatedly evaluates risks and refines the system through planned cycles.
+V-Model|The V-model pairs specification and design stages with corresponding levels of testing.
+Integration|Integration testing checks how separate components interact through their interfaces.
+Unit|Unit testing checks a small component in isolation.
+System|System testing assesses the behavior of the integrated product against its requirements.
+Acceptance|Acceptance testing checks whether the product meets stakeholder needs and acceptance criteria.
+Git|Git records and merges versions of files in a distributed repository.
+Maintenance|Maintenance fixes, adapts, and improves a system after release.
+HTML|HyperText Markup Language describes the structure and meaning of web content.
+CSS|Cascading Style Sheets control the presentation, layout, and appearance of web content.
+GET|HTTP GET requests a representation of a resource.
+POST|HTTP POST asks a resource to process submitted content.
+PUT|HTTP PUT creates or replaces the representation at a specified resource address.
+MySQL|MySQL is a relational database management system that uses SQL.
+MongoDB|MongoDB stores records as BSON documents with flexible structures.
+JSON|JavaScript Object Notation is a text format for exchanging structured data.
+XML|Extensible Markup Language expresses structured content using nested elements and attributes.
+Node.js|Node.js runs JavaScript outside the browser and supports event-driven network applications.
+Django|Django is a Python web framework for building server-side applications.
+React|React is a JavaScript library for building user interfaces from components.
+Docker|Docker packages applications and dependencies into portable container images.
+SELECT|SQL SELECT retrieves rows and expressions, with optional filtering and grouping.
+INSERT|SQL INSERT adds rows to a table.
+UPDATE|SQL UPDATE changes values in existing table rows.
+ALTER|SQL ALTER changes the definition of a database object.
+DROP|SQL DROP removes the named database object itself.
+Normalization|Normalization organizes relations according to dependencies to reduce redundancy and update anomalies.
+Indexing|An index maintains a lookup structure that can reduce the amount of data scanned in a search.
+WHERE|SQL WHERE filters individual rows before grouping.
+GROUP BY|SQL GROUP BY groups rows sharing specified values for aggregation.
+HAVING|SQL HAVING filters groups after aggregation.
+ORDER BY|SQL ORDER BY sorts the result rows using specified expressions.
+NOT NULL|A NOT NULL constraint requires a value for the column.
+UNIQUE|A UNIQUE constraint rejects repeated non-null key values in the constrained columns.
+CHECK|A CHECK constraint evaluates a condition on the values stored in a row.
+DEFAULT|A DEFAULT supplies a value when an insert omits the column.
+Primary Key|A primary key is the chosen unique, non-null identifier for a row.
+Foreign Key|A foreign key constrains a reference to a key in the referenced relation.
+Inner Join|An inner join returns only row pairs satisfying the join condition.
+Cross|A cross join produces the Cartesian product, pairing every row on one side with every row on the other.
+Regression|Regression predicts a numerical response.
+Classification|Classification predicts a discrete label or class.
+Clustering|Clustering groups observations based on similarity without requiring class labels.
+K-means|K-means assigns observations to cluster centroids and updates the centroids iteratively.
+DBSCAN|DBSCAN forms clusters from dense connected regions and marks isolated points as noise.
+Precision|Precision is the fraction of predicted positives that are true positives.
+Recall|Recall is the fraction of actual positives that the classifier successfully identifies.
+Accuracy|Accuracy divides the number of correct predictions by the total number of predictions.
+Scaling|Scaling changes the numerical ranges of features so differences in units have less influence.
+Encoding|Encoding changes how information is represented so it can be stored or processed.
+PCA|Principal component analysis projects data onto orthogonal directions of greatest variance.
+Imputation|Imputation supplies estimated values for missing observations.
+Bagging|Bagging trains models on resampled data and combines predictions to reduce variance.
+Boosting|Boosting builds an ensemble sequentially, with later models addressing earlier errors.
+Paging|Paging maps fixed-size virtual pages to physical frames.
+Segmentation|Segmentation divides a program's address space into variable-sized logical regions.
+Round Robin|Round-robin scheduling gives each ready process a turn for up to one time quantum.
+FCFS|First-come, first-served scheduling chooses jobs in arrival order.
+SJF|Shortest-job-first scheduling chooses the job with the shortest predicted CPU burst.
+Kernel|The kernel manages system resources and provides privileged services to user programs.
+Shell|A shell accepts commands or scripts and requests operating-system services to execute them.
+Ready|A ready process can run as soon as the scheduler grants it a CPU.
+Waiting|A waiting process is blocked until an event or resource becomes available.
+Running|A running process is currently executing on a CPU.
+Authentication|Authentication verifies the identity claimed by a user, device, or service.
+Authorization|Authorization determines which actions an authenticated or otherwise identified principal is permitted to perform.
+Hashing|A cryptographic hash maps input to a fixed-size digest that can support integrity checks against a trusted reference.
+Encryption|Encryption uses a key to transform plaintext into ciphertext to protect confidentiality.
+Firewall|A firewall enforces traffic rules at a network or host boundary.
+IDS|An intrusion detection system monitors activity and reports suspicious events.
+IPS|An intrusion prevention system can detect and block suspicious activity.
+VPN|A virtual private network provides a protected logical network connection over another network.
+Phishing|Phishing impersonates a trusted party to persuade a victim to disclose information or take an unsafe action.
+Sniffing|Sniffing observes network traffic for inspection or analysis.
+Spoofing|Spoofing presents a forged identity or source address.
+Worm|A worm is self-propagating malware that spreads across systems.
+Virus|A virus attaches to a host program or file and replicates when it runs.
+Trojan|A Trojan disguises malicious behavior as a legitimate program.
+AES|The Advanced Encryption Standard is a symmetric block cipher.
+RSA|RSA is a public-key algorithm with distinct public and private key roles.
+Drafting pseudocode|Pseudocode expresses a proposed solution in structured steps. Writing it presupposes that the required inputs and outputs are known.
+Selecting a programming language|Language selection concerns implementation and depends on constraints such as the deployment environment and performance requirements.
+Testing edge cases|Testing edge cases checks a proposed implementation at boundaries such as empty inputs, limits, or transitions.
+Algorithm Design|Algorithm design chooses the sequence of operations that will solve a defined problem.
+Generalization|Generalization identifies a reusable rule or solution that applies to a family of cases.
+Bottom-up Implementation|A bottom-up implementation builds small working components first and then combines them into a larger system.
+Pattern Recognition|Pattern recognition identifies recurring structures that can guide future predictions or solutions.
+Null|A null value represents the absence of a value or object reference, depending on the language.
+undefined|In JavaScript, undefined is the value of an uninitialized declared variable or an absent property.
+Error|An error is a failure to translate or execute an operation according to the relevant rules.
+Linear|Linear growth means the amount of work increases in direct proportion to the input size.
+Code|Code expresses operations in a programming language so a computer or interpreter can execute them.
+Size|Size measures how much input or storage is involved. Time complexity describes how work grows with input size.
+Cost|Cost measures a resource consumed, such as execution time, memory, or money.
+Complexity|Algorithmic complexity characterizes how resource requirements grow with input size.
+Imperative|Imperative programming describes a sequence of commands that update program state.
+float|A floating-point type uses a finite representation for approximate real-number arithmetic.
+int|An integer type represents whole numbers. Its range and behavior depend on the programming language.
+Functional|Functional programming expresses computation through functions and often emphasizes immutable data.
+Logging|Logging records events or diagnostics so that developers or operators can inspect behavior later.
+var|In JavaScript, var declarations are scoped to their function or global context and can be redeclared.
+let|JavaScript let declares a block-scoped binding whose value may be reassigned.
+const|A constant declaration restricts reassignment, subject to the rules of the particular language.
+Quadratic Probing|Quadratic probing resolves hash collisions using offsets based on a quadratic sequence.
+Pre-order|Preorder traversal visits a node before traversing its subtrees.
+Resource Ordering|Assigning a global order to resource acquisition prevents circular waiting.
+Mutual Exclusion|Mutual exclusion permits only one owner or execution context to use a protected resource at a time.
+Hold and Wait|Hold and wait occurs when a process retains a resource while requesting another.
+No Preemption|No preemption means a held resource cannot be forcibly taken away and must be released by its holder.
+Circular Wait|A circular wait is a cycle in which each participant waits for a resource held by the next.
+Banker's Algorithm|The banker's algorithm checks whether granting a request would leave some safe completion order for all processes.
+Deadlock Detection|Deadlock detection looks for an existing deadlock so that the system can recover.
+Linked Allocation|Linked file allocation chains blocks together, making sequential traversal simple but random access expensive.
+Cache|A cache keeps nearby copies of data that are likely to be used again to reduce access time.
+Caching|Caching reuses stored results or data to avoid fetching or computing them again.
+Demand Paging|Demand paging brings a page into memory when a process first needs it.
+Virtual Memory|Virtual memory gives processes protected address spaces that the OS maps onto physical memory and backing storage.
+Thrashing|Thrashing happens when frequent page faults make the system spend much of its time moving pages instead of executing work.
+Bare Metal|Bare metal refers to running directly on physical hardware without a host operating system underneath.
+Deadlock|A deadlock is a state in which participants cannot proceed because each waits for a condition only another blocked participant can satisfy.
+Concurrency Control|Concurrency control coordinates simultaneous transactions to preserve required isolation and consistency.
+Data Dictionary|A data dictionary stores metadata describing database objects, their fields, and their constraints.
+Relational Data Model|The relational model represents data as relations over attributes and relates records using keys.
+Referential Integrity Violation|A referential integrity violation occurs when a foreign-key value lacks the required matching referenced key.
+Inner|An inner join returns pairs of rows for which the join predicate is satisfied.
+Portability|Portability measures how readily software can be moved to another operating environment.
+LOC|Lines of code measures program size, while complexity and productivity require additional interpretation.
+Requirement|A requirement specifies a capability, constraint, or quality the system must satisfy.
+Design|Design describes how the system's components and interfaces will satisfy its requirements.
+Moore's Law|Moore's Law describes a historical trend in transistor counts on integrated circuits.
+Maintainability|Maintainability is the ease of diagnosing, changing, testing, and repairing software over time.
+Blackboard|A blackboard architecture coordinates specialized components through a shared working representation of a problem.
+Stress Testing|Stress testing exercises a system beyond normal limits to understand its failure and recovery behavior.
+Alpha Testing|Alpha testing lets a team or invited users evaluate prerelease software in a controlled environment.
+Beta Testing|Beta testing gives representative external users access to a stable prerelease build in realistic environments.
+Database Indexing|A database index maintains an auxiliary lookup structure to speed selected searches at a storage and write cost.
+404 Not Found|HTTP 404 means the server could not find a current representation of the target resource or declines to disclose one.
+200 OK|HTTP 200 reports that the request succeeded.
+visibility: hidden;|The CSS visibility property can hide an element while retaining the space allocated to its box.
+opacity: 0;|Zero opacity makes an element transparent while its layout box remains present.
+Application Layer|The application layer provides protocols used by programs, including HTTP, DNS and SMTP.
+Hub|An Ethernet hub repeats a signal to the other ports without looking up its destination address.
+Gateway|A gateway connects networks or systems and may translate between the formats or protocols they use.
+Physical Layer|The physical layer transmits raw bits as signals over the communication medium.
+IP Address|An IP address is a network-layer identifier used to route packets toward an interface.
+Checksum|A checksum is a computed value used to detect accidental corruption of data.
+Coaxial Cable|Coaxial cable carries electrical signals through a central conductor surrounded by insulation and a shield.
+Bluetooth|Bluetooth is a short-range wireless technology used for connections such as peripherals and personal-area networks.
+FDM|Frequency-division multiplexing gives simultaneous signals separate frequency bands on a shared medium.
+TDM|Time-division multiplexing gives sources separate time slots on a shared communication channel.
+Presentation Layer|The OSI presentation layer deals with data representation, including translation, encoding, and compression.
+URL|A Uniform Resource Locator identifies a resource and how to access it.
+Token Ring|Token Ring coordinates access by passing a token among stations on a logical ring.
+Linear Regression|Linear regression fits a linear relationship between predictors and a numerical response.
+Logistic Regression|Logistic regression models class probability using a logistic link and can classify by applying a threshold.
+Decision Tree|A decision tree repeatedly splits data using feature tests, ending in leaves that supply predictions.
+Splitting|Dataset splitting separates examples into subsets such as training and held-out evaluation sets.
+Reinforcement Learning|In reinforcement learning, an agent chooses actions and learns from rewards received through interaction.
+Mean|The arithmetic mean is the sum of observations divided by their number.
+Underfitting|Underfitting occurs when the model cannot capture important structure and performs poorly even on training data.
+Overfitting|Overfitting occurs when a model learns training-specific noise and loses accuracy on unseen data.
+DoS|Denial of service makes a resource unavailable to legitimate users.
+SQL Injection|SQL injection occurs when untrusted input changes the structure of a database command. Parameter binding keeps input values separate from SQL syntax.
+Cross-Site Scripting|Cross-site scripting allows untrusted content to execute as browser code. Context-aware output encoding and safe DOM APIs help prevent it.
+Spyware|Spyware covertly collects information about a user's activity or device.
+Antivirus|Antivirus software detects, blocks, or removes known or suspicious malicious programs.
+Compression|Compression reduces the size of a representation for storage or transmission.
+Non-repudiation|Non-repudiation provides evidence linking an action or message to its originator so a later denial can be evaluated.
+Discretionary Access Control (DAC)|DAC permits resource owners to decide which other principals may access their resources.
+Role-Based Access Control (RBAC)|RBAC associates permissions with roles, then grants users access according to their assigned roles.
+Adware|Adware displays advertising, sometimes tracking behavior to select or measure those advertisements.
+Man-in-the-Middle|An intermediary attack intercepts communication between parties who believe they are communicating directly.
+stdin|Standard input carries data into a program, typically from a keyboard, file, or pipe. A program reads from this stream.
+stdout|Standard output carries a program's ordinary results. A caller can pipe those results to another program independently of diagnostic messages.
+stdlog|The standard streams are stdin, stdout, and stderr. Some environments offer separate logging facilities, but stdlog is not a standard stream.
+Standard Deviation|Standard deviation measures the spread of observations around their mean, in the same units as the observations.
+Bottom-up design|Bottom-up design starts with smaller reusable components and assembles them into larger subsystems.
+Data Integrity|Data integrity means data stays accurate and consistent as it is stored, transferred, and updated.
+Load Testing|Load testing measures the behavior of a system under an expected or specified workload, such as many concurrent requests.
+Multi-threading|Multithreading lets several threads within one process make progress while sharing that process's address space.
+O(N^2)|Quadratic growth means that doubling the input size roughly quadruples the dominant amount of work. Comparing every pair of items is one example.
+O(1)|Constant complexity means the resource use stays bounded independently of input size.
+Drafting pseudocode|Pseudocode describes a proposed solution in structured, language-independent steps. Writing those steps requires knowing the inputs, outputs and constraints.
+Selecting a programming language|Language choice determines implementation tools and syntax, after the problem and its constraints have been identified.
+Testing edge cases|Edge-case testing checks behavior at boundaries such as empty inputs or maximum values. The specification defines what should happen there.

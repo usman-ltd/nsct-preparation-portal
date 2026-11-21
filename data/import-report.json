@@ -1,0 +1,214 @@
+{
+  "active": 2506,
+  "sharedRationaleDistractors": 3576,
+  "bySubject": {
+    "ps": 385,
+    "prog": 295,
+    "dsa": 275,
+    "db": 251,
+    "se": 241,
+    "web": 261,
+    "net": 223,
+    "ai": 258,
+    "os": 147,
+    "cyber": 170
+  },
+  "legacyPreExcluded": [
+    8,
+    59,
+    81,
+    96,
+    117,
+    127,
+    149,
+    172,
+    175,
+    199,
+    228,
+    241,
+    252,
+    259,
+    261,
+    270,
+    280,
+    322,
+    325,
+    353,
+    362,
+    369,
+    371,
+    373
+  ],
+  "held": [
+    {
+      "id": "ps-139",
+      "source": "NSCT_File_01_Problem_Solving.pdf · p. 63 · Q23",
+      "reason": "equivalent choices"
+    },
+    {
+      "id": "prog-047",
+      "source": "NSCT_File_02_Programming.pdf · p. 24 · Q2",
+      "reason": "incomplete choices, answer marking, or explanation"
+    },
+    {
+      "id": "prog-113",
+      "source": "NSCT_File_02_Programming.pdf · p. 54 · Q3",
+      "reason": "equivalent choices"
+    },
+    {
+      "id": "db-185",
+      "source": "NSCT_File_04_Databases.pdf · p. 98 · Q3",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "se-009",
+      "source": "NSCT_File_05_Software-Engineering.pdf · p. 5 · Q9",
+      "reason": "equivalent choices"
+    },
+    {
+      "id": "web-115",
+      "source": "NSCT_File_06_Web-Development.pdf · p. 51 · Q18",
+      "reason": "equivalent choices"
+    },
+    {
+      "id": "web-154",
+      "source": "NSCT_File_06_Web-Development.pdf · p. 71 · Q2",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "web-168",
+      "source": "NSCT_File_06_Web-Development.pdf · p. 78 · Q1",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "web-171",
+      "source": "NSCT_File_06_Web-Development.pdf · p. 79 · Q4",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "web-183",
+      "source": "NSCT_File_06_Web-Development.pdf · p. 83 · Q16",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "ai-114",
+      "source": "NSCT_File_08_Ai-Ml-Learning_&_Data-Analytics.pdf · p. 53 · Q3",
+      "reason": "equivalent choices"
+    },
+    {
+      "id": "cyber-053",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 27 · Q1",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "cyber-061",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 29 · Q9",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "cyber-065",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 30 · Q13",
+      "reason": "requires editorial review"
+    },
+    {
+      "id": "cyber-109",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 56 · Q2",
+      "reason": "equivalent choices"
+    },
+    {
+      "id": "dsa-123",
+      "source": "NSCT_File_03_DSA.pdf · p. 51 · Q15",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "se-043",
+      "source": "NSCT_File_05_Software-Engineering.pdf · p. 21 · Q17",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "web-170",
+      "source": "NSCT_File_06_Web-Development.pdf · p. 79 · Q3",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "web-179",
+      "source": "NSCT_File_06_Web-Development.pdf · p. 81 · Q12",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "net-086",
+      "source": "NSCT_File_07_Computer-Networks_&_Cloud-Computing.pdf · p. 35 · Q16",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "net-167",
+      "source": "NSCT_File_07_Computer-Networks_&_Cloud-Computing.pdf · p. 67 · Q15",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "os-039",
+      "source": "NSCT_File_09_Operating-Systems.pdf · p. 20 · Q2",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "os-071",
+      "source": "NSCT_File_09_Operating-Systems.pdf · p. 34 · Q9",
+      "reason": "duplicate question text"
+    },
+    {
+      "id": "cyber-009",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 5 · Q9",
+      "reason": "duplicate question text"
+    },
+    {
+      "id": "cyber-062",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 29 · Q10",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "cyber-064",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 30 · Q12",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "cyber-079",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 37 · Q12",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "cyber-091",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 44 · Q12",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "cyber-096",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 47 · Q5",
+      "reason": "duplicate question text"
+    },
+    {
+      "id": "cyber-101",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 52 · Q2",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "cyber-137",
+      "source": "NSCT_File_10_Cyber-Security.pdf · p. 72 · Q6",
+      "reason": "held for editorial review"
+    },
+    {
+      "id": "legacy-37",
+      "source": "NSCT_400_Domain_Wise_Questions_With_Answers.pdf · p. 3 · Q37",
+      "reason": "duplicate question text"
+    },
+    {
+      "id": "legacy-52",
+      "source": "NSCT_400_Domain_Wise_Questions_With_Answers.pdf · p. 5 · Q52",
+      "reason": "duplicate question text"
+    },
+    {
+      "id": "legacy-56",
+      "source": "NSCT_400_Domain_Wise_Questions_With_Answers.pdf · p. 5 · Q56",
+      "reason": "duplicate question text"
+    }
+  ]
+}
