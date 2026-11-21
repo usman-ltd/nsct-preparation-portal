@@ -109,8 +109,25 @@ const eyebrow = (text) => `<div class="eyebrow">${escaped(text)}</div>`;
 const heading = (title, desc = "", tag = "NSCT Preparation Portal") =>
   `<div class="heading">${eyebrow(tag)}<h1>${escaped(title)}</h1>${desc ? `<p>${escaped(desc)}</p>` : ""}</div>`;
 function subjectTable() {
-  return `<section class="section panel"><div class="bar"><div><div class="eyebrow">Paper blueprint</div><h2>Subject weightage</h2></div><span class="small">Share of a combined paper</span></div><div class="subjectlist">${subjects.map((s) => `<div class="subjectrow"><span>${escaped(s.name)}</span><progress value="${Number(s.weight)}" max="100" aria-label="${attr(s.name)} weight"></progress><b>${Number(s.weight)}%</b></div>`).join("")}</div></section>`;
+  return `<section class="section panel"><div class="bar"><div><div class="eyebrow">Syllabus</div><h2>Subject weights</h2></div><span class="small">Share of a combined paper</span></div><p class="syllabus-note">Practise with 2,500+ questions across ${subjects.length} subject modules. Choose one module or combine several. Each new paper draws and shuffles questions from your selection.</p><div class="subjectlist">${subjects.map((s) => `<div class="subjectrow"><span>${escaped(s.name)}</span><progress value="${Number(s.weight)}" max="100" aria-label="${attr(s.name)} weight"></progress><b>${Number(s.weight)}%</b></div>`).join("")}</div></section>`;
 }
+const targetDate = "2027-01-22T00:00:00+05:00";
+let countdownInterval;
+function startCountdown() {
+  const timer = document.querySelector(".countdown");
+  const digits = timer.querySelectorAll("b");
+  function update() {
+    const seconds = Math.max(0, Math.ceil((Date.parse(targetDate) - Date.now()) / 1000));
+    const parts = [Math.floor(seconds / 86400), Math.floor(seconds / 3600) % 24,
+      Math.floor(seconds / 60) % 60, seconds % 60];
+    digits.forEach((digit, index) => { digit.textContent = String(parts[index]).padStart(2, "0"); });
+    if (!seconds) clearInterval(countdownInterval);
+  }
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(update, 1000);
+  update();
+}
+
 function landing(page) {
   const field = (name, label, type, auto, more = "") =>
     `<label>${label}<input name="${name}" type="${type}" autocomplete="${auto}" required ${more}></label>`;
@@ -157,10 +174,11 @@ function landing(page) {
     : isRegister
       ? field("name", "Full name", "text", "name", 'maxlength="100"') +
         email +
-        field("institution", "University or college", "text", "organization", 'maxlength="160"') +
+        field("institution", "University/College", "text", "organization", 'maxlength="160"') +
         pass
       : email + pass;
-  main.innerHTML = `<section class="landing"><div class="hero"><div>${eyebrow("Computer science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Prepare for the National Skills Competency Test with a combined Computer Science paper, or practise individual subjects at your own pace.</p></div><div class="herofoot"><span>Riphah International University · Sahiwal</span></div></div><div class="panel auth"><h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
+  main.innerHTML = `<section class="landing"><div class="hero"><div>${eyebrow("Computer Science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Practise by subject or take a full Computer Science mock paper for the National Skills Competency Test.</p></div><div class="deadline"><div class="deadline-date">Preparation target <time datetime="${targetDate}">22 January 2027</time></div><div class="countdown" role="timer" aria-label="Time until the preparation target">${["Days", "Hours", "Minutes", "Seconds"].map(label => `<span><b>00</b>${label}</span>`).join("")}</div></div></div><div class="panel auth"><h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
+  startCountdown();
 }
 function attemptItem(a) {
   const label = a.completed ? "View report" : "Resume";
@@ -388,7 +406,7 @@ function administrator(data) {
       "Administration",
       "Review student activity and manage the questions available for new papers.",
     ) +
-    `<section class="panel"><h2>Student activity</h2><div class="metrics"><div><b class="metric">${Number(data.totalStudents)}</b><span>Students</span></div><div><b class="metric">${Number(data.totalAttempts)}</b><span>Papers started</span></div></div><div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Attempts</th><th>Last active</th></tr></thead><tbody>${data.students.map((s) => `<tr><td><a href="#/admin-student/${code(s.id)}">${escaped(s.name)}</a></td><td>${escaped(s.email)}</td><td>${Number(s.attempts)}</td><td>${escaped(stamp(s.lastActiveAt))}</td></tr>`).join("")}</tbody></table></div></section><section class="section panel"><h2>Question bank</h2><div class="choices section"><label class="field">Search questions<input id="bankSearch" type="search"></label><label class="field">Subject<select id="bankSubject"><option value="">All subjects</option>${subjects.map((s) => `<option value="${attr(s.id)}">${escaped(s.name)}</option>`).join("")}</select></label></div><div id="bankResults"></div></section>`;
+    `<section class="panel"><h2>Student activity</h2><div class="metrics"><div><b class="metric">${Number(data.totalStudents)}</b><span>Students</span></div><div><b class="metric">${Number(data.totalAttempts)}</b><span>Papers started</span></div></div><div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>University/College</th><th>Attempts</th><th>Last active</th></tr></thead><tbody>${data.students.map((s) => `<tr><td><a href="#/admin-student/${code(s.id)}">${escaped(s.name)}</a></td><td>${escaped(s.email)}</td><td>${escaped(s.institution || "Not provided")}</td><td>${Number(s.attempts)}</td><td>${escaped(stamp(s.lastActiveAt))}</td></tr>`).join("")}</tbody></table></div></section><section class="section panel"><h2>Question bank</h2><div class="choices section"><label class="field">Search questions<input id="bankSearch" type="search"></label><label class="field">Subject<select id="bankSubject"><option value="">All subjects</option>${subjects.map((s) => `<option value="${attr(s.id)}">${escaped(s.name)}</option>`).join("")}</select></label></div><div id="bankResults"></div></section>`;
   bankResults();
 }
 function bankResults() {
@@ -415,6 +433,7 @@ function bankResults() {
       )}${count > 1 ? `<div class="actions section"><button class="btn alt" data-page="-1" ${adminPage === 0 ? "disabled" : ""}>Previous</button><span>Page ${adminPage + 1} of ${count}</span><button class="btn alt" data-page="1" ${adminPage + 1 === count ? "disabled" : ""}>Next</button></div>` : ""}`;
 }
 async function render() {
+  clearInterval(countdownInterval);
   const turn = ++revision;
   const [page, id, n] = route();
   warn("");

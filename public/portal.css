@@ -867,10 +867,25 @@ details p {
   }
 }
 
+.brand { align-items: center; gap: 1rem; text-decoration: none; }
+.faculty-name { max-width: 14em; padding-left: 1rem; border-left: 1px solid var(--line); font-weight: 650; color: var(--navy); line-height: 1.25; }
 .hero::before {
-  content: ""; position: absolute; inset: 0 0 0 26%; z-index: -1;
-  background-image: linear-gradient(90deg, #9dc2cd28 1px, transparent 1px), linear-gradient(#9dc2cd28 1px, transparent 1px);
-  background-size: 30px 30px; mask-image: linear-gradient(90deg, transparent, black);
+  content: ""; position: absolute; inset: 0 0 -26%; z-index: -1;
+  background: linear-gradient(95deg, #072637f2, #0b31469c 65%, #0b31464d),
+    linear-gradient(0deg, #092b40ca, transparent 75%), url("/campus-front.jpg") center top / cover;
+}
+.deadline { border-top: 1px solid #ffffff66; padding-top: 1rem; }
+.deadline-date { display: flex; flex-wrap: wrap; gap: .3rem .8rem; align-items: baseline; }
+.deadline-date time { font-weight: 700; color: #ffdb9e; }
+.countdown { display: flex; gap: clamp(.8rem, 3vw, 2rem); margin-top: .6rem; }
+.countdown span { display: grid; color: #fff; font-size: .8rem; }
+.countdown b { font-size: clamp(1.45rem, 3vw, 2.15rem); line-height: 1.2; font-variant-numeric: tabular-nums; }
+.syllabus-note { max-width: 72ch; }
+.footer-links a { overflow-wrap: anywhere; }
+@media (max-width: 780px) {
+  .mast { flex-wrap: wrap; }
+  .brand { gap: .55rem; }
+  .faculty-name { max-width: 12em; padding-left: .55rem; font-size: .85rem; }
 }
 .about { padding-block: clamp(2rem, 5vw, 4.5rem); }
 #team-title { margin: 0; }
