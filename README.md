@@ -45,3 +45,7 @@ Never copy .local, .env files, service keys or database dumps into published ass
 ## Verification
 
 Run `npm run check` and `npm test`. The database integration tests use isolated, in-memory PostgreSQL and a captured verification email. They do not require production credentials.
+
+## Publishing updates
+
+The production site at https://riphahsahiwalnsct.netlify.app builds from the main branch of https://github.com/usman-ltd/nsct-preparation-portal. Push a tested commit to main to deploy it. Keep service credentials in the existing Netlify project environment settings. The public repository includes the practice question bank and its answer keys.
