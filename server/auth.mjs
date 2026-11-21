@@ -1,6 +1,7 @@
 import {createHash, createHmac, randomBytes, randomInt, scrypt, timingSafeEqual} from 'node:crypto';
 import {promisify} from 'node:util';
 import nodemailer from 'nodemailer';
+import {verificationEmail} from './verification-email.mjs';
 
 const derive = promisify(scrypt);
 const settings = {N:32768, r:8, p:3, maxmem:64*1024*1024};
@@ -70,19 +71,18 @@ async function limits(sql,ip,action,account,ipLimit,accountLimit) {
 }
 
 async function sendMail(email,otp) {
-  const subject='Verify your NSCT Preparation Portal account';
-  const text='Your NSCT Preparation Portal verification code is '+otp+'. It expires in 10 minutes. If you did not request this code, you can ignore this email.';
-  if (process.env.GMAIL_USER || process.env.GMAIL_APP_PASSWORD) {
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) throw new Error('Incomplete Gmail configuration');
+  const message=verificationEmail(otp);
+  if (process.env.GMAIL_APP_PASSWORD) {
+    if (!process.env.GMAIL_USER) throw new Error('Incomplete Gmail configuration');
     const transporter=nodemailer.createTransport({service:'gmail',auth:{user:process.env.GMAIL_USER,
       pass:process.env.GMAIL_APP_PASSWORD.replace(/\s/g,'')},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:12000});
-    await transporter.sendMail({from:process.env.GMAIL_USER,to:email,subject,text});
+    await transporter.sendMail({from:{name:'NSCT Preparation Portal',address:process.env.GMAIL_USER},to:email,...message});
     return;
   }
   if (!process.env.RESEND_API_KEY || !process.env.MAIL_FROM) throw new Error('Mail configuration unavailable');
   const response=await fetch('https://api.resend.com/emails',{
     method:'POST', headers:{Authorization:'Bearer '+process.env.RESEND_API_KEY,'Content-Type':'application/json'},
-    body:JSON.stringify({from:process.env.MAIL_FROM,to:[email],subject,text}),
+    body:JSON.stringify({from:process.env.MAIL_FROM,to:[email],...message}),
     signal:AbortSignal.timeout(10000)
   });
   if (!response.ok) throw new Error('Verification email unavailable');
@@ -124,7 +124,7 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
   async function deliver(email,otp) {
     try {await sendCode(email,otp); return true;}
     catch (error) {
-      console.error('OTP delivery failed',process.env.GMAIL_USER?'gmail':'mail',error.responseCode || error.code || error.name);
+      console.error('OTP delivery failed',process.env.GMAIL_APP_PASSWORD?'gmail':'mail',error.responseCode || error.code || error.name);
       return false;
     }
   }
