@@ -2,7 +2,7 @@ import {subjects,generate,present,summary,record,RequestError} from './papers.mj
 import {authenticate,authRoute,withSessionRenewal} from './auth.mjs';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const authActions = new Set(['register','verify','resend','login','logout']);
+const authActions = new Set(['register','verify','resend','login','logout','saveProfile','changePassword','forgotPassword','verifyReset','resetPassword']);
 const json = (data,status=200) => Response.json(data,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
 const stored = a => JSON.stringify({...a,...summary(a)});
 

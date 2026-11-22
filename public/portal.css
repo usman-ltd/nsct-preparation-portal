@@ -949,3 +949,5 @@ details p {
 #institution-list [role="option"] { padding: .55rem .7rem; cursor: pointer; line-height: 1.35; }
 #institution-list [role="option"]:hover, #institution-list [aria-selected="true"] { background: #e5f0f3; }
 .institution-add { border-top: 1px solid #cedadc; font-weight: 650; }
+
+.recovery { max-width: 32rem; margin-inline: auto; }

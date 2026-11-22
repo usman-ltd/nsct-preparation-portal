@@ -68,8 +68,8 @@ async function limits(sql,ip,action,account,ipLimit,accountLimit) {
   return allowed && await quota(sql,'account/'+action+'/'+account,accountLimit,900);
 }
 
-async function sendMail(email,otp) {
-  const message=verificationEmail(otp);
+async function sendMail(email,otp,purpose) {
+  const message=verificationEmail(otp,purpose);
   if (process.env.GMAIL_APP_PASSWORD) {
     if (!process.env.GMAIL_USER) throw new Error('Incomplete Gmail configuration');
     const transporter=nodemailer.createTransport({service:'gmail',auth:{user:process.env.GMAIL_USER,
@@ -109,9 +109,12 @@ export function withSessionRenewal(req,response) {
   return response;
 }
 
-async function startSession(req,sql,user) {
+async function startSession(req,sql,user,expectedHash=null) {
   const raw=token();
-  await sql`INSERT INTO sessions (token_hash,user_id,expires_at) VALUES (${digest(raw)},${user.id},now()+interval '90 days')`;
+  const inserted=await sql`WITH credential AS (
+    SELECT id FROM users WHERE id=${user.id} AND (${expectedHash}::text IS NULL OR password_hash=${expectedHash}) FOR SHARE
+  ) INSERT INTO sessions(token_hash,user_id,expires_at) SELECT ${digest(raw)},id,now()+interval '90 days' FROM credential RETURNING user_id`;
+  if (!inserted.length) return failure('Sign in again with your current password.',401);
   const response=reply({user});
   setCookie(req,response,'session',raw,sessionAge);
   setCookie(req,response,'pending','',0);
@@ -119,8 +122,8 @@ async function startSession(req,sql,user) {
 }
 
 export function createAuthRoutes({sendCode=sendMail}={}) {
-  async function deliver(email,otp) {
-    try {await sendCode(email,otp); return true;}
+  async function deliver(email,otp,purpose) {
+    try {await sendCode(email,otp,purpose); return true;}
     catch (error) {
       console.error('OTP delivery failed',process.env.GMAIL_APP_PASSWORD?'gmail':'mail',error.responseCode || error.code || error.name);
       return false;
@@ -133,9 +136,93 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
     const expired=()=>failure('Start registration again to get a new verification code.',410);
     const deliveryFailed=()=>failure('We could not send your verification email. Try again later or use Contact us below.',503);
     if (randomInt(64)===0) {
+      await sql`DELETE FROM password_resets WHERE expires_at<=now()`;
       await sql`DELETE FROM auth_limits WHERE until_at<=now()`;
       await sql`DELETE FROM sessions WHERE expires_at<=now()`;
       await sql`DELETE FROM registrations WHERE expires_at<=now()`;
+    }
+
+    if (action==='forgotPassword') {
+      if (!validEmail(email)) return failure('Enter a valid email address.',400);
+      if (!await limits(sql,ip,action,email,30,5)) return limited();
+      const raw=token(), key=digest(raw), otp=code();
+      const rows=await sql`INSERT INTO password_resets(user_id,token_hash,code_hash,password_version,expires_at)
+        SELECT id,${key},${keyed('reset/'+key+'/'+otp)},md5(password_hash),now()+interval '10 minutes'
+        FROM users WHERE email=${email}
+        ON CONFLICT (user_id) DO UPDATE SET token_hash=excluded.token_hash,code_hash=excluded.code_hash,
+          password_version=excluded.password_version,expires_at=excluded.expires_at,tries=0 RETURNING user_id`;
+      if (rows.length && !await deliver(email,otp,'reset')) {
+        await sql`DELETE FROM password_resets WHERE token_hash=${key}`;
+        return deliveryFailed();
+      }
+      const response=reply({ok:true});
+      setCookie(req,response,'reset',raw,600);
+      return response;
+    }
+
+    if (action==='verifyReset') {
+      const raw=readCookie(req,'reset');
+      const invalid=()=>failure('Invalid or expired code. Request a new code if needed.',400);
+      if (!raw || typeof body.otp!=='string' || !/^\d{6}$/.test(body.otp)) return invalid();
+      const key=digest(raw), grant=token();
+      if (!await limits(sql,ip,action,key,60,10)) return limited();
+      const proof=keyed('reset/'+key+'/'+body.otp);
+      const [row]=await sql`UPDATE password_resets SET tries=tries+1,
+        token_hash=CASE WHEN code_hash=${proof} THEN ${digest(grant)} ELSE token_hash END,
+        code_hash=CASE WHEN code_hash=${proof} THEN NULL ELSE code_hash END
+        WHERE token_hash=${key} AND code_hash IS NOT NULL AND expires_at>now() AND tries<5
+        RETURNING code_hash IS NULL AS verified`;
+      if (!row?.verified) return invalid();
+      const response=reply({ok:true});
+      setCookie(req,response,'reset',grant,600);
+      return response;
+    }
+
+    if (action==='saveProfile') {
+      const user=await authenticate(req,sql);
+      if (!user) return failure('Sign in to edit your profile.',401);
+      const name=typeof body.name==='string'?body.name.trim():'';
+      if (!name || name.length>120) return failure('Enter a full name of up to 120 characters.',400);
+      await sql`UPDATE users SET name=${name} WHERE id=${user.id}`;
+      return withSessionRenewal(req,reply({ok:true}));
+    }
+
+    if (action==='changePassword' || action==='resetPassword') {
+      if (!validPassword(body.newPassword) || body.newPassword!==body.confirmPassword)
+        return failure('Enter matching new passwords of 12 to 128 characters.',400);
+      let id, version, keep='';
+      if (action==='changePassword') {
+        const user=await authenticate(req,sql);
+        if (!user) return failure('Sign in to change your password.',401);
+        if (!await limits(sql,ip,action,user.id,60,10)) return limited();
+        const [current]=await sql`SELECT password_hash FROM users WHERE id=${user.id}`;
+        if (!validPassword(body.oldPassword) || !await matches(body.oldPassword,current?.password_hash))
+          return failure('Your current password is incorrect.',400);
+        id=user.id;
+        version=current.password_hash;
+        keep=digest(readCookie(req,'session'));
+      }
+      const resetKey=digest(readCookie(req,'reset') || '');
+      if (action==='resetPassword') {
+        const [grant]=await sql`SELECT u.id,u.password_hash FROM password_resets r JOIN users u ON u.id=r.user_id
+          WHERE r.token_hash=${resetKey} AND r.code_hash IS NULL AND r.expires_at>now() AND r.password_version=md5(u.password_hash)`;
+        if (!grant) return failure('Request a new password reset code.',410);
+        id=grant.id;
+        version=grant.password_hash;
+      }
+      const hash=await passwordHash(body.newPassword);
+      const changed=await sql`WITH changed AS (
+        UPDATE users SET password_hash=${hash} WHERE id=${id} AND password_hash=${version}
+        AND (${action}='changePassword' OR EXISTS (SELECT 1 FROM password_resets
+          WHERE user_id=${id} AND token_hash=${resetKey} AND code_hash IS NULL AND expires_at>now() FOR UPDATE))
+        RETURNING id
+      ), revoked AS (DELETE FROM sessions USING changed WHERE user_id=changed.id AND token_hash<>${keep}),
+      cleared AS (DELETE FROM password_resets USING changed WHERE user_id=changed.id)
+      SELECT id FROM changed`;
+      if (!changed.length) return failure('Your credentials changed. Please start again.',409);
+      const response=reply({ok:true});
+      setCookie(req,response,'reset','',0);
+      return withSessionRenewal(req,response);
     }
 
     if (action==='register') {
@@ -203,8 +290,8 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
       if (!await limits(sql,ip,'login',email,120,12)) return limited();
       const [user]=await sql`SELECT id,name,institution,email,admin,password_hash FROM users WHERE email=${email}`;
       if (!await matches(body.password,user?.password_hash)) return denied();
-      delete user.password_hash;
-      return startSession(req,sql,user);
+      const {password_hash,...account}=user;
+      return startSession(req,sql,account,password_hash);
     }
 
     if (action==='logout') {

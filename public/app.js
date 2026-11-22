@@ -100,6 +100,7 @@ function navigation(page) {
         navItem("", "Dashboard", page === ""),
         navItem("syllabus", "Syllabus", page === "syllabus"),
         '<a class="navlink" href="/about/">About Us</a>',
+        navItem("profile", "Profile", page === "profile"),
         navItem("history", "History", page === "history"),
         user.admin ? navItem("admin", "Admin", page.startsWith("admin")) : "",
         '<button class="linkbtn" data-do="logout">Sign out</button>',
@@ -146,6 +147,36 @@ function startCountdown() {
   update();
 }
 
+function passwordField(name, label, current = false) {
+  return `<label>${label}<input name="${name}" type="password" required maxlength="128"
+    autocomplete="${current ? "current-password" : "new-password"}" ${current ? "" : 'minlength="12"'}></label>`;
+}
+function newPasswordFields() {
+  return passwordField("newPassword", "New password") + passwordField("confirmPassword", "Confirm new password")
+    + '<span class="small">Use at least 12 characters.</span>';
+}
+function profilePage() {
+  main.innerHTML = heading("My profile") + `<div class="columns section">
+    <section class="panel"><h2>Account details</h2><p>${escaped(user.email)}<br>${escaped(user.institution)}</p>
+    <form class="fields" data-form="saveProfile"><label>Full name<input name="name" autocomplete="name" maxlength="120" required value="${attr(user.name)}"></label>
+    <button class="btn">Save name</button></form></section>
+    <section class="panel"><h2>Change password</h2><form class="fields" data-form="changePassword">
+    ${passwordField("oldPassword", "Current password", true)}${newPasswordFields()}<button class="btn">Change password</button>
+    </form></section></div><p role="status" id="account-status"></p>`;
+}
+function recoveryPage(page) {
+  const stages = {
+    forgot: ["Forgot password", "Enter your registered email address.", "forgotPassword",
+      '<label>Email address<input name="email" type="email" required maxlength="254" autocomplete="email"></label>', "Send reset code"],
+    "reset-code": ["Check your email", "If your email is registered, you’ll receive a six-digit code. Enter it here within 10 minutes.", "verifyReset",
+      '<label>Reset code<input name="otp" type="text" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code"></label>', "Verify code"],
+    "new-password": ["Choose a new password", "Enter your new password twice to confirm it.", "resetPassword", newPasswordFields(), "Save new password"]
+  };
+  const [title, description, action, fields, button] = stages[page];
+  main.innerHTML = `<section class="panel recovery"><h1>${title}</h1><p>${description}</p>
+    <form class="fields" data-form="${action}">${fields}<button class="btn">${button}</button></form>
+    <p><a href="#/login">Back to sign in</a>${page === "forgot" ? "" : ' · <a href="#/forgot">Request a new code</a>'}</p></section>`;
+}
 function landing(page) {
   const field = (name, label, type, auto, more = "") =>
     `<label>${label}<input name="${name}" type="${type}" autocomplete="${auto}" required ${more}></label>`;
@@ -200,7 +231,7 @@ function landing(page) {
           <div id="institution-list" role="listbox" aria-label="Institutions" hidden></div></div>` +
         pass
       : email + pass;
-  main.innerHTML = `<section class="landing"><div class="hero"><div>${eyebrow("Computer Science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Practise by subject or take a full Computer Science mock paper for the National Skills Competency Test.</p></div><div class="deadline"><div class="deadline-date">Preparation target <time datetime="${targetDate}">22 January 2027</time></div><div class="countdown" role="timer" aria-label="Time until the preparation target">${["Days", "Hours", "Minutes", "Seconds"].map(label => `<span><b>00</b>${label}</span>`).join("")}</div></div></div><div class="panel auth"><h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
+  main.innerHTML = `<section class="landing"><div class="hero"><div>${eyebrow("Computer Science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Practise by subject or take a full Computer Science mock paper for the National Skills Competency Test.</p></div><div class="deadline"><div class="deadline-date">Preparation target <time datetime="${targetDate}">22 January 2027</time></div><div class="countdown" role="timer" aria-label="Time until the preparation target">${["Days", "Hours", "Minutes", "Seconds"].map(label => `<span><b>00</b>${label}</span>`).join("")}</div></div></div><div class="panel auth"><h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}${verify ? "" : '<p><a class="link" href="#/forgot">Forgot password?</a></p>'}${page === "password-updated" ? '<p role="status">Password updated. Sign in with your new password.</p>' : ""}</div></section>${subjectTable()}`;
   if (isRegister) attachInstitutionSearch(main.querySelector(".institution-search"), api);
   startCountdown();
 }
@@ -470,10 +501,12 @@ async function render() {
       return;
     }
     if (!user) {
+      if (["forgot", "reset-code", "new-password"].includes(page)) { recoveryPage(page); return; }
       landing(page);
       return;
     }
     if (page !== "attempt" && page !== "report") activeAttempt = null;
+    if (page === "profile") { profilePage(); return; }
     if (page === "setup") {
       setup(id);
       return;
@@ -598,7 +631,17 @@ document.addEventListener("submit", (event) => {
       go(qurl(activeAttempt, 0));
       return;
     }
+    if (values.newPassword !== values.confirmPassword) throw new Error("The new passwords do not match.");
     await api(action, values);
+    if (action === "forgotPassword") { go("reset-code"); return; }
+    if (action === "verifyReset") { go("new-password"); return; }
+    if (action === "resetPassword") { go("password-updated"); return; }
+    if (action === "changePassword" || action === "saveProfile") {
+      if (action === "saveProfile") user.name = values.name.trim();
+      profilePage();
+      $("#account-status").textContent = action === "saveProfile" ? "Name saved." : "Password updated.";
+      return;
+    }
     if (action === "register") {
       pendingEmail = values.email;
       go("verify");

@@ -2,6 +2,14 @@
 export async function ensureIdentitySchema(sql) {
   await sql`DO $directory$
   BEGIN
+    IF to_regclass('password_resets') IS NULL THEN
+      PERFORM pg_advisory_xact_lock(20271124);
+      CREATE TABLE IF NOT EXISTS password_resets (
+        user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        token_hash text NOT NULL UNIQUE, code_hash text, password_version text NOT NULL,
+        tries integer NOT NULL DEFAULT 0, expires_at timestamptz NOT NULL
+      );
+    END IF;
     IF to_regclass('institution_directory') IS NULL THEN
       PERFORM pg_advisory_xact_lock(20271123);
       CREATE TABLE IF NOT EXISTS institution_directory (key text PRIMARY KEY, name text NOT NULL);
@@ -31,8 +39,8 @@ export async function ensureIdentitySchema(sql) {
 
   // Only the original registrations carry a CMS identifier. New accounts supply their own institution.
   if (columns.some(c => c.table_name === 'users' && c.column_name === 'cms')) {
-    await sql`UPDATE users SET institution='Riphah Sahiwal'
-      WHERE NULLIF(btrim(institution),'') IS NULL AND id IN (
+    await sql`UPDATE users SET institution='Riphah International University, Sahiwal — Sahiwal'
+      WHERE (NULLIF(btrim(institution),'') IS NULL OR institution='Riphah Sahiwal') AND id IN (
         SELECT id FROM users WHERE cms IS NOT NULL ORDER BY created_at, id LIMIT 5
       )`;
   }
