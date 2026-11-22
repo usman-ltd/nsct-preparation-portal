@@ -95,8 +95,10 @@ test('verified accounts, enforced ownership, persistence, admin controls and log
     assert.equal((await two('admin')).totalAttempts,1);
     const newcomer=client();
     const email='after-upgrade@example.org';
-    assert.equal((await newcomer('register',{name:'New Student',institution:'City College',email,password})).status,200);
+    assert.equal((await newcomer('register',{name:'New Student',institution:'City College',shareInstitution:'yes',email,password})).status,200);
+    assert.deepEqual((await client()('institutions')).names,[]);
     assert.equal((await newcomer('verify',{email,otp:mail.get(email)})).user.institution,'City College');
+    assert.deepEqual((await client()('institutions')).names,['City College']);
     assert.equal((await one('logout')).status,200);
     assert.equal((await one('get',{id})).status,401);
     const back=await one('login',{email:'TESTER0@example.org',password});

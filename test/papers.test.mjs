@@ -23,6 +23,9 @@ test('HEC quotas, shuffled answer mapping and fairness across selected papers',(
 test('learning locks the first choice; exam keys stay private through revision',()=>{
   for(const mode of ['learn','exam']){
     const paper=generate({subjects:['db'],mode,size:20},bank,{});
+    paper.questions[0].stem='(Scenario-Based) (x + y) is stored where?';
+    assert.equal(present(paper).questions[0].stem,'(x + y) is stored where?');
+    assert.equal(present(paper).questions[0].subject,'db');
     assert(!('correct' in present(paper).questions[0]));
     assert.throws(()=>record(paper,'finish',{}));
     record(paper,'answer',{index:0,choice:0});
@@ -30,7 +33,10 @@ test('learning locks the first choice; exam keys stay private through revision',
       assert('explanations' in present(paper).questions[0]);
       assert.throws(()=>record(paper,'answer',{index:0,choice:1}));
     }else{
-      assert(!('correct' in present(paper).questions[0]));
+      paper.questions[0].stem='(Scenario-Based) (x + y) is stored where?';
+    assert.equal(present(paper).questions[0].stem,'(x + y) is stored where?');
+    assert.equal(present(paper).questions[0].subject,'db');
+    assert(!('correct' in present(paper).questions[0]));
       record(paper,'answer',{index:0,choice:1});
     }
     paper.questions.forEach((q,index)=>{if(q.choice===null)record(paper,'answer',{index,choice:q.correct});});

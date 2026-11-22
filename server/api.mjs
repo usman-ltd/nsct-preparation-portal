@@ -49,6 +49,10 @@ export function makeHandler({sql,bank,handleAuth=authRoute}) {
       if (!body || typeof body!=='object' || Array.isArray(body)) return json({error:'Invalid request.'},400);
       const action=new URL(req.url).pathname.split('/').pop();
       if (authActions.has(action)) return await handleAuth(action,body,req,sql,context.ip);
+      if (action==='institutions') {
+        const rows=await sql`SELECT name FROM institution_directory ORDER BY key`;
+        return json({names:rows.map(row=>row.name)});
+      }
       const user=await authenticate(req,sql);
       if (user && ['me','start','get','answer','finish','list'].includes(action)) {
         await sql`INSERT INTO student_activity (user_id) VALUES (${user.id})

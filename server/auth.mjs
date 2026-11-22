@@ -139,16 +139,16 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
     }
 
     if (action==='register') {
-      const institution=typeof body.institution==='string'?body.institution.trim():'';
+      const institution=typeof body.institution==='string'?body.institution.trim().replace(/\s+/g,' '):'';
       const name=typeof body.name==='string'?body.name.trim():'';
-      if (!name || name.length>120 || !validEmail(email) || (!institution || institution.length>160) || !validPassword(body.password))
+      if (!name || name.length>120 || !validEmail(email) || (!institution || institution.length>250) || !validPassword(body.password))
         return failure('Enter a name, valid email, university or college, and a password between 12 and 128 characters.',400);
       if (!await limits(sql,ip,'register',email,30,5)) return limited();
       const existing=await sql`SELECT 1 FROM users WHERE email=${email} LIMIT 1`;
       if (existing.length) return failure('This email is already registered. Sign in with your email address.',409);
       const raw=token(), key=digest(raw), otp=code(), hash=await passwordHash(body.password);
-      await sql`INSERT INTO registrations (token_hash,name,institution,email,password_hash,code_hash,code_expires_at,expires_at)
-        VALUES (${key},${name},${institution},${email},${hash},${keyed(key+'/'+otp)},now()+interval '10 minutes',now()+interval '1 hour')`;
+      await sql`INSERT INTO registrations (token_hash,name,institution,share_institution,email,password_hash,code_hash,code_expires_at,expires_at)
+        VALUES (${key},${name},${institution},${body.shareInstitution==="yes"},${email},${hash},${keyed(key+'/'+otp)},now()+interval '10 minutes',now()+interval '1 hour')`;
       if (!await deliver(email,otp)) {
         await sql`DELETE FROM registrations WHERE token_hash=${key}`;
         return deliveryFailed();
@@ -186,9 +186,13 @@ export function createAuthRoutes({sendCode=sendMail}={}) {
         return failure('Code invalid or expired. Request a new code or start registration again.',400);
       const [user]=await sql`WITH claimed AS (
         DELETE FROM registrations WHERE token_hash=${key} AND email=${email} AND code_hash=${challenge}
-          AND expires_at>now() AND code_expires_at>now() RETURNING name,institution,email,password_hash
-        ) INSERT INTO users(name,institution,email,password_hash) SELECT name,institution,email,password_hash FROM claimed
-        ON CONFLICT DO NOTHING RETURNING id,name,institution,email,admin`;
+          AND expires_at>now() AND code_expires_at>now() RETURNING name,institution,email,password_hash,share_institution
+        ), created AS (INSERT INTO users(name,institution,email,password_hash) SELECT name,institution,email,password_hash FROM claimed
+        ON CONFLICT DO NOTHING RETURNING id,name,institution,email,admin
+        ), shared AS (INSERT INTO institution_directory(key,name)
+          SELECT lower(created.institution),created.institution FROM created JOIN claimed USING(email)
+          WHERE claimed.share_institution ON CONFLICT (key) DO NOTHING)
+        SELECT * FROM created`;
       if (!user) return failure('Registration could not be completed. Sign in if you already have an account.',409);
       return startSession(req,sql,user);
     }

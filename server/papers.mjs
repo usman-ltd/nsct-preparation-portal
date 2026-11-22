@@ -55,9 +55,26 @@ export function summary(a) {
   return {id:a.id,mode:a.mode,size:a.size,answered,score,completed:a.completed,createdAt:a.createdAt,updatedAt:a.updatedAt || a.createdAt,completedAt:a.completedAt || null,subjects:a.subjects};
 }
 
+const formatLabels = new Set([
+  "calculation", "calculation / logic", "calculation / stats", "calculation/comparison",
+  "calculation/logic", "calculation/math", "code error / debugging", "code error / logic",
+  "code output", "code output / bitwise", "code output / logic", "code output / regex",
+  "code-analysis", "code-logic / data", "code-logic / markdown", "code-logic / sql", "code-math",
+  "code-tracing", "code-tracing / c++", "code-tracing / calculation", "code-tracing / java",
+  "code-tracing / java logic", "code-tracing / logic", "code/console logic", "code/data tracing",
+  "code/logic", "code/logic tracing", "comparison", "conceptual", "debugging",
+  "debugging / casting", "debugging / error analysis", "debugging / logic", "debugging / regex",
+  "debugging / scenario", "debugging/analysis", "diagram/visual interpretation",
+  "logic/calculation", "logic/schema", "mathematical", "notation-tracing", "scenario based",
+  "scenario-based", "technique",
+]);
+
 export function present(a) {
   return {...summary(a),questions:a.questions.map(({subject,stem,options,choice,correct,explanations}) => {
-    const row = {subject,stem,options,choice};
+    // The imported bank labels question formats before the actual prompt.
+    const prompt = stem.replace(/^\s*\(([^)]+)\)\s*/, (prefix, label) =>
+      formatLabels.has(label.trim().toLowerCase()) ? '' : prefix);
+    const row = {subject,stem:prompt,options,choice};
     return a.completed || (a.mode==='learn' && choice!==null) ? {...row,correct,explanations} : row;
   })};
 }

@@ -1,5 +1,13 @@
 // Existing accounts retain their IDs, sessions, history and registered email.
 export async function ensureIdentitySchema(sql) {
+  await sql`DO $directory$
+  BEGIN
+    IF to_regclass('institution_directory') IS NULL THEN
+      PERFORM pg_advisory_xact_lock(20271123);
+      CREATE TABLE IF NOT EXISTS institution_directory (key text PRIMARY KEY, name text NOT NULL);
+      ALTER TABLE registrations ADD COLUMN IF NOT EXISTS share_institution boolean NOT NULL DEFAULT false;
+    END IF;
+  END $directory$`;
   const columns = await sql`SELECT table_name, column_name, is_nullable
     FROM information_schema.columns WHERE table_schema=current_schema()
     AND table_name IN ('users','registrations') AND column_name IN ('cms','institution')`;

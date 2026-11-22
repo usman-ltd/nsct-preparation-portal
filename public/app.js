@@ -1,3 +1,5 @@
+import { attachInstitutionSearch } from "./institution-search.js";
+
 const $ = (s) => document.querySelector(s);
 const main = $("#main");
 const alertBox = $("#alert");
@@ -190,10 +192,16 @@ function landing(page) {
     : isRegister
       ? field("name", "Full name", "text", "name", 'maxlength="100"') +
         email +
-        field("institution", "University/College", "text", "organization", 'maxlength="160"') +
+        `<div class="institution-search"><label for="institution">University/College</label>
+          <input id="institution" name="institution" type="text" required maxlength="250" autocomplete="off"
+            placeholder="Search by institution or campus" role="combobox" aria-autocomplete="list"
+            aria-expanded="false" aria-controls="institution-list">
+          <input type="hidden" name="shareInstitution" value="">
+          <div id="institution-list" role="listbox" aria-label="Institutions" hidden></div></div>` +
         pass
       : email + pass;
   main.innerHTML = `<section class="landing"><div class="hero"><div>${eyebrow("Computer Science · 2027")}<h1>NSCT <em>Preparation</em> Portal</h1><p>Practise by subject or take a full Computer Science mock paper for the National Skills Competency Test.</p></div><div class="deadline"><div class="deadline-date">Preparation target <time datetime="${targetDate}">22 January 2027</time></div><div class="countdown" role="timer" aria-label="Time until the preparation target">${["Days", "Hours", "Minutes", "Seconds"].map(label => `<span><b>00</b>${label}</span>`).join("")}</div></div></div><div class="panel auth"><h2>${title}</h2><p>${desc}</p><form class="fields" data-form="${verify ? "verify" : isRegister ? "register" : "login"}">${fields}${isRegister ? '<span class="small">Use at least 12 characters for your password.</span>' : ""}<button class="btn" type="submit">${verify ? "Verify and continue" : isRegister ? "Create account" : "Sign in"}</button></form>${verify ? '<p class="switch"><button class="btn alt" data-do="resend">Resend code</button></p>' : ""}<p class="switch">${isRegister || verify ? '<a class="link" href="#/login">Back to sign in</a>' : 'New to the portal? <a class="link" href="#/register">Create an account</a>'}</p>${!verify && !isRegister ? '<a class="small" href="#/verify">Verify an existing registration</a>' : ""}</div></section>${subjectTable()}`;
+  if (isRegister) attachInstitutionSearch(main.querySelector(".institution-search"), api);
   startCountdown();
 }
 function attemptItem(a) {
