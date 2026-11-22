@@ -28,7 +28,7 @@ The source includes a Netlify Functions adapter. Use the deployment project and 
    | AUTH_SECRET | A server-only, base64-encoded random secret of at least 32 bytes |
 
 3. Deploy this folder as the project root using a Git-connected Netlify build or the Netlify CLI with build support. The included netlify.toml configures the public directory, function bundle, validation command and browser security headers. A drag-and-drop upload of the public folder alone cannot run the API.
-4. Register and verify the first administrator normally. In the database SQL editor, set the admin flag on the verified user's exact ID after confirming their identity. Changing roles is an owner operation. Use a separate student account to check student access.
+4. Register and verify the first administrator normally. In the production database SQL editor, run [the admin grant script](scripts/grant-admin.sql) with the verified student's email address and check the returned account. Changing roles is an owner operation. Use a separate student account to check student access.
 5. Open the production address over HTTPS and complete one registration, email verification, paper submission and logout. Check the sender, delivery and portal in the intended deployment context.
 
 Never copy .local, .env files, service keys or database dumps into published assets. Back up the production PostgreSQL database using your provider's backup controls. The private question bank ships with the server function.

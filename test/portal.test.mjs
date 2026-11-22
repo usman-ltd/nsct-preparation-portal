@@ -85,7 +85,12 @@ test('verified accounts, enforced ownership, persistence, admin controls and log
       ALTER TABLE users ALTER COLUMN cms SET NOT NULL;
       ALTER TABLE registrations ADD COLUMN cms text NOT NULL;`);
     await ensureIdentitySchema(sql);
+    assert.equal((await one('me')).user.institution,'Riphah Sahiwal');
+    await sql`UPDATE users SET institution='Another College' WHERE id=${me.id}`;
     await ensureIdentitySchema(sql);
+    const institutions=(await two('admin')).students;
+    assert.equal(institutions.find(s=>s.id===me.id).institution,'Another College');
+    assert.equal(institutions.find(s=>s.id===owner.id).institution,'Riphah Sahiwal');
     assert.equal((await one('me')).user.id,owner.id);
     assert.equal((await two('admin')).totalAttempts,1);
     const newcomer=client();
