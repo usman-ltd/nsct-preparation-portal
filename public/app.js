@@ -96,12 +96,17 @@ function navigation(page) {
   $("#nav").innerHTML = user
     ? [
         navItem("", "Dashboard", page === ""),
+        navItem("syllabus", "Syllabus", page === "syllabus"),
         '<a class="navlink" href="/about/">About Us</a>',
         navItem("history", "History", page === "history"),
         user.admin ? navItem("admin", "Admin", page.startsWith("admin")) : "",
         '<button class="linkbtn" data-do="logout">Sign out</button>',
       ].join("")
-    : '<a class="navlink" href="/about/">About Us</a>';
+    : [
+        navItem("login", "Sign in", page === "login" || page === ""),
+        navItem("syllabus", "Syllabus", page === "syllabus"),
+        '<a class="navlink" href="/about/">About Us</a>',
+      ].join("");
 }
 const btn = (path, label, secondary = false) =>
   `<a class="btn${secondary ? " alt" : ""}" href="#/${attr(path)}">${escaped(label)}</a>`;
@@ -110,6 +115,17 @@ const heading = (title, desc = "", tag = "NSCT Preparation Portal") =>
   `<div class="heading">${eyebrow(tag)}<h1>${escaped(title)}</h1>${desc ? `<p>${escaped(desc)}</p>` : ""}</div>`;
 function subjectTable() {
   return `<section class="section panel"><div class="bar"><div><div class="eyebrow">Syllabus</div><h2>Subject weights</h2></div><span class="small">Share of a combined paper</span></div><p class="syllabus-note">Practise with 2,500+ questions across ${subjects.length} subject modules. Choose one module or combine several. Each new paper draws and shuffles questions from your selection.</p><div class="subjectlist">${subjects.map((s) => `<div class="subjectrow"><span>${escaped(s.name)}</span><progress value="${Number(s.weight)}" max="100" aria-label="${attr(s.name)} weight"></progress><b>${Number(s.weight)}%</b></div>`).join("")}</div></section>`;
+}
+function syllabus() {
+  main.innerHTML = `<section class="summary syllabus-intro">
+    ${eyebrow("Computer Science · 2027")}<h1>Syllabus</h1>
+    <p>Build a paper of 20, 50 or 100 questions. Cover the full syllabus or choose the subjects you want to practise.</p>
+    </section>
+    ${subjectTable()}
+    <section class="section panel"><h2>How the proportions work</h2>
+    <p>In a 100-question combined paper, a 20% subject contributes 20 questions and a 10% subject contributes 10. For a shorter paper, the counts are rounded to whole questions.</p>
+    <p>If you select several subjects, their weights are recalculated within your selection. For example, a 20-question paper covering two equally weighted subjects has 10 questions from each.</p>
+    ${user ? btn("setup", "Build a practice paper") : btn("register", "Create an account")}</section>`;
 }
 const targetDate = "2027-01-22T00:00:00+05:00";
 let countdownInterval;
@@ -441,6 +457,10 @@ async function render() {
     if (!authReady) await identity();
     if (turn !== revision) return;
     navigation(page);
+    if (page === "syllabus") {
+      syllabus();
+      return;
+    }
     if (!user) {
       landing(page);
       return;
